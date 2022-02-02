@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package users;
+
+import "commons.proto";
+message OTP {
+  string forTask = 1;
+  string expiresOn = 2;
+  string otp = 3;
+}
+
+message User {
+  string first_name = 1;
+  string email = 2;
+  string username = 3;
+  string password = 4;
+  bool isEmailVerified = 5;
+  bool twoFactorAuth = 6;
+  string role = 7;
+  OTP otp = 8;
+  string status = 9;
+  string socialDiscord = 10;
+  string socialTelegram = 11;
+  string socialTwitter = 12;
+  string socialInstagram = 13;
+  string socialYoutube = 14;
+  string socialTiktok = 15;
+  string socialTwitch = 16;
+  string mobile = 17;
+  string profileImageUrl = 18;
+  string _id = 19;
+  string updatedAt = 20;
+  string createdAt = 21;
+  string appleId = 22;
+  bool isBlocked = 23;
+  bool canCreateCollection = 24;
+  bool spendVryntPlatformCredit = 25;
+  bool spendViaCreditCard = 26;
+  bool claimVryntToken = 27;
+  string stripe_account_id = 28;
+  string kyc_applicant_id = 29;
+  string last_name = 30;
+  bool isProfileUpdated = 31;
+  string kyc_status = 32;
+  string name = 33;
+  string metamask_id = 34;
+  repeated Balance balance = 35;
+  repeated GalleryCollections galleryCollections = 36;
+  int32 kyc_counter = 37; 
+}
+
+message GalleryCollections {
+  string collectionId = 1;
+  bool owned = 2;
+  bool transactedNft = 3;
+  bool transactedComponents = 4;
+}
+
+message Balance {
+  string assetCode = 1;
+  string amount = 2;
+  string withheldAmount = 3;
+}
+
+message LoginResponse {
+  string token = 1;
+  User user = 2;
+  string message = 3;
+  string expiresIn = 4;
+  int32 statusCode = 5;
+  string refreshToken = 6;
+}
+
+message Token {
+  string token = 1;
+  int32 expiresIn = 2;
+}
+
+message UpdateProfileDto {
+  string first_name = 1;
+  string email = 2;
+  string username = 3;
+  string newPassword = 4;
+  string currentPassword = 5;
+  bool twoFactorAuth = 6;
+  string status = 7;
+  string socialDiscord = 8;
+  string socialTelegram = 9;
+  string socialTwitter = 10;
+  string socialInstagram = 11;
+  string socialYoutube = 12;
+  string socialTiktok = 13;
+  string socialTwitch = 14;
+  string mobile = 15;
+  User user = 16;
+  bool isAdmin = 17;
+  bool isBlocked = 18;
+  bool canCreateCollection = 19;
+  bool spendVryntPlatformCredit = 20;
+  bool spendViaCreditCard = 21;
+  bool claimVryntToken = 22;
+  string stripe_account_id = 23;
+  string role = 24;
+  string profileImageUrl = 25;
+  string last_name = 26;
+}
+message UpdateProfileResponse {
+  string message = 1;
+  User user = 2;
+}
+
+message ListUsersDto { 
+  string userId = 1;
+  string status = 2;
+  string sortBy = 3;
+  int32 sortOrder = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  bool canCreateCollection = 7;
+  bool isBlocked = 8;
+  string role = 9;
+  bool twoFactorAuth = 10;
+  bool isProfileUpdated = 11;
+  bool isEmailVerified = 12;
+  bool spendVryntPlatformCredit= 13;
+  bool spendViaCreditCard = 14;
+  bool claimVryntToken = 15;
+  string name = 16;
+  string email  = 17;
+  string username = 18;
+  string mobile = 19;
+  string metamask_id = 20;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 totalUsers = 2;
+}
+
+message MessageDef {
+  string message = 1;
+}
+
+service UserService {
+  rpc create (commons.createUserDto) returns (LoginResponse) {}
+  rpc findOneByEmailOrUsername(commons.EmailOrUsername) returns (User) {}
+  rpc validateUserByPassword(commons.LoginUserDto) returns (LoginResponse) {}
+  rpc updateProfile(UpdateProfileDto) returns (UpdateProfileResponse) {}
+  rpc listUsers(ListUsersDto) returns (ListUsersResponse) {}
+  rpc healthCheck(MessageDef) returns (MessageDef) {}
+}

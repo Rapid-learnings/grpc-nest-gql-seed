@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package biddings;
+import "user.proto";
+
+message MessageDef {
+  string message = 1; 
+}
+
+message MakeCounterOfferDto {
+  string componentId = 1;
+  string userId = 2;
+  string counterOfferPrice = 3;
+}
+
+message Bidding {
+  string _id = 1;
+  string componentId = 2;
+  string userId = 3;
+  string price = 4;
+  string ownerId = 5;
+  string collectionId = 6;
+  string status = 7;
+  string componentName = 8;
+  users.User userInfo = 9;
+  users.User ownerInfo = 10;
+  string expireOn = 11;
+}
+
+message GetBiddingByIdDto {
+  string biddingId = 1;
+}
+
+message GetBiddingsDto {
+  string componentName = 1;
+  string collectionId = 2;
+  string userId = 3;
+  string sortBy = 4;
+  int32 sortOrder = 5;
+  int32 limit = 6;
+  int32 offset = 7;
+}
+
+message GetBiddingsResponse {
+  int32 totalBiddings = 1;
+  repeated Bidding biddings = 2;
+}
+
+message UpdateBiddingByIdDto {
+  string biddingId = 1;
+  string status = 2;
+  string expireOn = 3;
+}
+
+service BiddingService {
+  rpc hello (MessageDef) returns (MessageDef) {}
+  rpc makeCounterOffer (MakeCounterOfferDto) returns (MessageDef) {}
+  rpc getBiddingById (GetBiddingByIdDto) returns (Bidding) {}
+  rpc getBiddings (GetBiddingsDto) returns (GetBiddingsResponse) {}
+  rpc updateBiddingById (UpdateBiddingByIdDto) returns (Bidding) {}
+  rpc healthCheck(MessageDef) returns (MessageDef) {}
+}

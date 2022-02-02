@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package commons;
+
+message createUserDto {
+  string email = 1;
+  string username = 2;
+  string name = 3;
+  string password = 4;
+}
+
+message LoginUserDto {
+  string emailOrUsername = 1;
+  string password = 2;
+}
+
+
+message hello {
+  string hello = 1;
+}
+
+message Token {
+  string token = 1;
+  int32 expiresIn = 2;
+}
+
+message EmailOrUsername {
+  string emailOrUsername = 1;
+}
+
+
+
+
+message AppleId {
+  string appleId = 1;
+}
+
+message UserId {
+  string id = 1;
+}
+
+message JwtPayload {
+  string email = 1;
+}
+
+message Otp {
+  string otp = 1;
+}
+
+message TwoFactorOtpDto{
+  string email = 1;
+  string otp = 2;
+}
+
+
+
+message SendOtpResponse{
+  string message = 1;
+  string expiresIn = 2;
+  string forTask = 3;
+}
+
+message VerifyOtpResponse{
+  string message = 1;
+  bool success = 2;
+}
+

@@ -1,0 +1,667 @@
+syntax = "proto3";
+
+package collections;
+
+import "commons.proto";
+import "user.proto";
+import "google/protobuf/any.proto";
+
+
+message MessageResponse {
+  string message = 1;
+}
+
+message Collection {
+  string name = 1;
+  string theme = 2;
+  int32 numOfNFTs = 3;
+  int32 minNumOfComponentsForNFT = 4;
+  string initialPrice = 5;
+  string priceIncrement = 6;
+  string artPiece = 7;
+  string _id = 8;
+  string userId = 9;
+  string updatedAt = 10;
+  string createdAt = 11;
+  string status = 12;
+  string scheduledDate = 13;
+  string id = 14;
+  users.User user = 15;
+  string type = 16;
+  string processedImgUrl = 17;
+  string modelId = 18;
+  string seed = 19;
+  repeated string components =20;
+  string seedNo = 21;
+  int32 totalNFTsMinted = 22;
+  string eventId = 23;
+  bool eventStatus = 24;
+}
+
+message LibraryImage {
+  string modelId = 1;
+  string imageURL = 2;
+  string status = 3;
+  string updatedAt = 4;
+  string createdAt = 5;
+  string name = 6;
+  string _id = 7;
+}
+
+message CreateCollectionResponse {
+  Collection collection = 1;
+  string message = 2;
+}
+
+message GetCollectionDto {
+  string id = 1;
+  string userId = 2;
+}
+message ListCollectionsDto {
+  string userId = 1;
+  string sortBy = 2;
+  int32 sortOrder = 3;
+  string status = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  users.User user = 7;
+  string name = 8;
+  string theme = 9;
+  string artist_username = 10;
+}
+
+message ListGalleryCollectionsDto {
+  string filterBy = 1;
+  string sortBy = 2;
+  int32 sortOrder = 3;
+  string status = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  users.User user = 7;
+  string name = 8;
+  string theme = 9;
+  repeated users.GalleryCollections galleryCollections = 10;
+}
+
+message ListCollectionsResponse {
+  repeated Collection collection = 1;
+  int32 totalCollections = 2;
+}
+
+message listLibraryDto {
+  string sortBy = 1;
+  string sortOrder = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+  string modelId = 5;
+}
+
+message listLibraryResponse {
+  repeated LibraryImage images = 1;
+  int32 count = 2;
+}
+
+message publishAllRes {
+  repeated string publishedCollections = 1;
+}
+message processImageDto{
+  string collectionId = 1;
+  string collectionUrl = 2;
+}
+
+message processedImageResponse{
+  string message = 1;
+}
+
+message processComponentDto{
+  string seed_no = 1;
+  string model_id = 2;
+  string genes = 3;
+  string nftId = 4;
+  string type = 5;
+}
+
+message processComponentResponse{
+  string object_url = 1;
+  string status = 2;
+}
+message MessageDef {
+  string message = 1; 
+}
+
+message updateGenesDto {
+  string modelId = 1;
+  string genes = 2;
+}
+
+message updateGenesResponse{
+  string message = 1;
+}
+
+message updateLibraryImageStatusDto {
+  string id = 1;
+  string status = 2;
+}
+
+message updateLibraryImageStatusResponse {
+  string message = 1;
+}
+
+message NFT {
+  string parentId = 1;
+  string name = 2;
+  string theme = 3;
+  string artPiece = 4;
+  string userId = 5;
+  int32 rating = 6;
+  repeated string ratingBy = 7;
+  string _id = 8;
+  users.User user = 9;
+  string hash = 10;
+  string price = 12;
+  string sellType = 13;
+  string lockTransactionHash = 14;
+  bool isArchive = 15;
+  bool onSell = 16;
+  string mintedTo = 17;
+  repeated genesObj genes = 18;
+  string nftId = 19;
+  string ipfs = 20;
+  string gifUrl = 21;
+  string offerPrice = 22;
+  string eventId = 23;
+  bool eventStatus = 24;
+}
+
+message genesObj {
+  string component = 1;
+  string scarcity = 2;
+}
+
+message CreateNFTDto {
+  string parentId = 1;
+  string name = 2;
+  string theme = 3;
+  string artPiece = 4;
+  string userId = 5;
+}
+
+message CreateNFTResponse {
+  string message = 1;
+  NFT nft = 2;
+}
+
+message RateNFTDto {
+  string nftId = 1; 
+  int32 rating = 2;
+  string userId = 3;
+}
+
+message RateNFTResponse {
+  string message = 1;
+  NFT nft = 2;
+}
+
+message GetGiffDto {
+  string nftId = 1;
+  string userId = 2;
+}
+
+message GetGiffResponse {
+  string message = 1;
+  repeated string giffImgs = 2;
+}
+
+message getGenesDto {
+  string modelId = 1;
+}
+
+message getGenesResponse {
+  string modelId = 1;
+  string genes = 2;
+}
+
+message componentObj {
+  string componentName = 1;
+  string componentId = 2;
+  string value = 3;
+  string scarcity = 4;
+}
+
+message mintNftDto {
+  string userId = 1;
+  string assetCode = 2;
+  string numberOfNFTtoMint = 3;
+  string nftUrl = 4;
+  string nftData = 5;
+  string collectionId = 6;
+  string userAddress = 7;
+  string nameOfNft = 8;
+  string nftUrlLow = 9;
+  repeated componentObj genes = 10;
+  string ipfs = 11;
+  string gifUrl = 12;
+}
+
+message mintNftDtoResponse {
+  string message = 1;
+}
+
+message ListNFTsDto {
+  string userId = 1;
+  string sortBy = 2;
+  int32 sortOrder = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+  string name = 6;
+  string theme = 7;
+  bool owned = 8;
+  string collectionId = 9;
+  string nftId = 10;
+  string sellType = 11;
+  string price_max = 12;
+  string price_min = 13;
+}
+
+message ListNFTsResponse {
+  repeated NFT nft = 1;
+  int32 totalNFTs = 2;
+}
+
+message ComponentPack {
+  string status = 1;
+}
+
+message ListOwnedComponentPacksDto {
+  string status = 1;
+  string collectionId = 2;
+  string userId = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+  string price_max = 6;
+  string price_min = 7;
+}
+
+message Genes {
+  string component = 1;
+  string price = 2;
+  users.User ownerInfo = 3;
+  string status = 4;
+  string _id = 5; 
+  string scarcity = 6;
+  string listingType = 7;
+  string highestBiddingId = 8;
+  string owner = 9;
+  string offerPrice = 10;
+  string highestBiddingUserId = 11;
+  string collectionId = 12;
+  string expireOn = 13;
+  string listingPrice = 14;
+  string eventId = 15;
+  bool eventStatus = 16;
+}
+
+message ListOwnedComponentPacksResponse {
+  repeated Genes genes = 1;
+}
+
+message GetNFTByIdDto {
+  string id = 1;
+}
+
+message countMintedNFTsDef {
+  string totalNFTs = 1;
+}
+
+message GetCollectionsDto {
+  repeated string names = 1;
+  repeated string themes = 2;
+  string sortBy = 3;
+  int32 sortOrder = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  bool canCreateCollection = 7;
+  bool isBlocked = 8;
+  string role = 9;
+  bool twoFactorAuth = 10;
+}
+
+message ComponentPacksObject {
+  string status = 1;
+  string collectionId = 2;
+  string price = 3;
+  string CollectionUrl = 4;
+  string owner = 5;
+  repeated Genes genes = 6;
+  string _id = 7;
+}
+
+message GetAvailableComponentPacksDto {
+  string status = 1;
+  string collectionId = 2;
+}
+
+message GetAvailableComponentPacksResponse {
+  int32 totalComponentPacks = 1;
+}
+
+message GetComponentPackDetailsDto {
+  string status = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+  string collectionId = 4;
+  string _id = 5;
+}
+
+message GetComponentPackDetailsResponse {
+  repeated ComponentPacksObject componentPacks = 1;
+}
+message BuyComponentPackDto {
+  repeated string componentPacks = 1;
+  string userId = 2;
+  string price = 3;
+  string assetCode = 4;
+  string collectionId = 5;
+}
+
+message BuyComponentPackResponse {
+  string message = 1;
+}
+
+message GetComponentBuyOfferDto {
+  string status = 1;
+  string collectionId = 2;
+  string userId = 3;
+}
+
+message GetComponentBuyOfferResponse {
+  repeated Genes components = 1;
+}
+
+message PublishCollectionDto {
+  string collectionId = 1;
+}
+
+message ListAvailableComponentsDto {
+  string collectionId = 1;
+  bool sold = 2;
+  string sortBy = 3;
+  int32 sortOrder = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  string price_max = 7;
+  string price_min = 8;
+}
+
+message ListAvailableComponentsResponse {
+  repeated Genes components = 1;
+  int32 totalComponentPacks = 2;
+}
+
+message tradingHistory {
+  string sortBy = 1;
+  int32 sortOrder = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+  string id = 5;
+  string type = 6;
+  string name = 7;
+}
+
+message tradingHistoryObj {
+  string id = 1;
+  string price = 2;
+  string to = 3;
+  string from = 4;
+  string type = 5;
+  string transactionHash = 6;
+  users.User fromUser = 7;
+  users.User toUser = 8;
+  string name = 9;
+  string _id = 10;
+  string createdAt = 11;
+  string updatedAt = 12;
+}
+
+message tradingHistoryresponse {
+ repeated tradingHistoryObj records = 1;
+ string count = 2;
+}
+
+message listcomponentInMarketPlaceDto {
+  string id = 1;
+  string owner = 2;
+  string price = 3;
+  string expireOn = 4;
+  string listingType = 5;
+}
+
+message listcomponentInMarketPlaceResponse {
+  string message = 1;
+}
+
+message BuyListedComponentDto {
+  string componentId = 1;
+  string userId = 2;
+}
+
+message BuyListedComponentResponse {
+  string message = 1;
+}
+
+message GetComponentByIdDto {
+  string componentId = 1; 
+}
+
+message GetComponentByIdResponse {
+  Genes component = 1;
+}
+
+message UpdateComponentDto {
+  string component = 1;
+  string price = 2;
+  string owner = 3;
+  string status = 4;
+  string componentId = 5; 
+  string listingType = 6;
+  string highestBiddingId = 7;
+  string offerPrice = 8;
+}
+
+message UpdateComponentResponse {
+  Genes component = 1;
+}
+
+message GetListedComponentsDto {
+  string componentName = 1;
+  string collectionId = 2;
+  string sortBy = 3;
+  int32 sortOrder = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message GetListedComponentsResponse {
+  repeated Genes components = 1;
+  int32 totalComponents = 2;
+}
+
+message BiddingAuctionExpirationDto {
+  string componentId = 1;
+}
+
+message AcceptBiddingDto {
+  string componentId = 1;
+  string userId = 2;
+}
+
+message AcceptBiddingResponse {
+  string message = 1;
+}
+
+message CreateOfferOnNFTDto {
+  string userId = 1;
+  string nftId = 2;
+  string offerPrice = 3;
+  string expireOn = 4;
+  string metamaskAddress = 5;
+  string offerType = 6;
+}
+message nftAuctionExpirationDto {
+  string nftId = 1;
+  string offerId = 2;
+}
+
+message createOfferTransactionDto {
+  string nftId = 1;
+  string ownerId = 2;
+  string offerId = 3;
+  string fromAddress = 4;
+}
+
+message createOfferTransactionResponse {
+  string from = 1;
+  string to = 2;
+  string nonce = 3;
+  string gas = 4;
+  string maxPriorityFeePerGas = 5;
+  string data = 6;
+}
+
+message Offers {
+  string _id = 1;
+  int32 amount = 2;
+  string expireOn = 3;
+  string metamaskAddress = 4;
+  string status = 5;
+  string offerType = 6;
+  string nftID = 7;
+  string userId = 8;
+  users.User userInfo = 9;
+  bool isArchived = 10;
+  string eventId = 11;
+  bool eventStatus = 12;
+}
+
+message ListNFTOffersDto {
+  string sortBy = 1;
+  int32 sortOrder = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+  string status = 5;
+  string nftId = 6;
+  string offerType = 7;
+  bool isArchived = 8;
+}
+
+message ListNFTOffersResponse {
+  repeated Offers offers = 1;
+  int32 totaloffers = 2;
+}
+
+message SellNFTDto {
+  string nftId = 1;
+  string userId = 2;
+  string sellType = 3;
+  string price = 4;
+  string expireOn = 5;
+  string signature = 6;
+  string to = 7;
+  string from = 8;
+  string value = 9;
+  string gas = 10;
+  string nonce = 11;
+  string data = 12;
+}
+
+message transferNFTDto {
+  string nftId = 1;
+  string offerId = 2;
+  string userId = 3;
+  string rawTransaction = 4;
+  string signature = 5;
+  string to = 6;
+  string from = 7;
+  string value = 8;
+  string gas = 19;
+  string nonce = 10;
+  string data = 11;
+}
+
+message UpdateGifByIdDto {
+  string nftId = 1;
+  string gifUrl = 2;
+}
+
+message claimVryntTokenDto {
+  string userAddress = 1;
+  string amount = 2;
+  string userId = 3;
+  string assetCode = 4;
+}
+
+message claimVryntTokenResponse {
+  string message = 1;
+}
+
+message ListCollectionsWithOwnedComponentsDto {
+  string userId = 1;
+  string sortBy = 2;
+  int32 sortOrder = 3;
+  string status = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  users.User user = 7;
+  string name = 8;
+  string theme = 9;
+}
+
+service CollectionService {
+  rpc hello (MessageResponse) returns (MessageResponse) {}
+  rpc create (Collection) returns (CreateCollectionResponse) {}
+  rpc getCollectionUser (GetCollectionDto) returns (Collection) {}
+  rpc listCollections (ListCollectionsDto) returns (ListCollectionsResponse) {}
+  rpc publishAll (MessageResponse) returns (publishAllRes) {}
+  rpc processedImage (processImageDto) returns (processedImageResponse) {}
+  rpc processcomponent (processComponentDto) returns (processComponentResponse) {}
+  rpc healthCheck(MessageDef) returns (MessageDef) {}
+  rpc updateGenes (updateGenesDto) returns (updateGenesResponse) {}
+  rpc listLibrary (listLibraryDto) returns (listLibraryResponse) {}
+  rpc updateLibraryImageStatus (updateLibraryImageStatusDto) returns (updateLibraryImageStatusResponse) {}
+  rpc nftHello (MessageDef) returns (MessageDef) {}
+  rpc createNFT (CreateNFTDto) returns (CreateNFTResponse) {}
+  rpc rateNFT (RateNFTDto) returns (RateNFTResponse) {}
+  rpc getGiff (GetGiffDto) returns (GetGiffResponse) {}
+  rpc getGenes (getGenesDto) returns (getGenesResponse) {}
+  rpc mintNft (mintNftDto) returns (mintNftDtoResponse) {}
+  rpc listNFTs (ListNFTsDto) returns (ListNFTsResponse) {}
+  rpc getCollection (GetCollectionDto) returns (Collection) {}
+  rpc listOwnedComponentPacks (ListOwnedComponentPacksDto) returns (ListOwnedComponentPacksResponse) {}
+  rpc getNFTById (GetNFTByIdDto) returns (NFT) {}
+  rpc countMintedNFTs (MessageDef) returns (countMintedNFTsDef) {}
+  rpc listGalleryCollections (ListGalleryCollectionsDto) returns (ListCollectionsResponse) {}
+  rpc getCollectionsByFilters(GetCollectionsDto) returns (ListCollectionsResponse) {}
+  rpc getAvailableComponentPacks (GetAvailableComponentPacksDto) returns (GetAvailableComponentPacksResponse) {}
+  rpc getComponentPackDetails (GetComponentPackDetailsDto) returns (GetComponentPackDetailsResponse) {}
+  rpc publishCollection (PublishCollectionDto) returns (MessageDef) {}
+  rpc buyComponentPack (BuyComponentPackDto) returns (BuyComponentPackResponse) {}
+  rpc getComponentBuyOffer (GetComponentBuyOfferDto) returns (GetComponentBuyOfferResponse) {}
+  rpc listAvailableComponents (ListAvailableComponentsDto) returns (ListAvailableComponentsResponse) {}
+  rpc tradingHistory (tradingHistory) returns (tradingHistoryresponse) {}
+  rpc listcomponentInMarketPlace (listcomponentInMarketPlaceDto) returns (listcomponentInMarketPlaceResponse) {}
+  rpc buyListedComponent (BuyListedComponentDto) returns (BuyListedComponentResponse) {}
+  rpc getComponentById (GetComponentByIdDto) returns (GetComponentByIdResponse) {}
+  rpc updateComponent (UpdateComponentDto) returns (UpdateComponentResponse) {}
+  rpc getListedComponents (GetListedComponentsDto) returns (GetListedComponentsResponse) {}
+  rpc biddingAuctionExpiration (BiddingAuctionExpirationDto) returns (BuyListedComponentResponse) {}
+  rpc acceptBidding (AcceptBiddingDto) returns (AcceptBiddingResponse) {}
+  rpc createOfferOnNFT (CreateOfferOnNFTDto) returns (MessageDef) {}
+  rpc listNFTOffers (ListNFTOffersDto) returns (ListNFTOffersResponse) {}
+  rpc sellNFT (SellNFTDto) returns (MessageDef) {}
+  rpc nftAuctionExpiration (nftAuctionExpirationDto) returns (MessageDef) {}
+  rpc createOfferTransaction (createOfferTransactionDto) returns (createOfferTransactionResponse) {}
+  rpc transferNFT (transferNFTDto) returns (MessageDef) {}
+  rpc updateGifById (UpdateGifByIdDto) returns (MessageDef) {}
+  rpc claimVryntToken (claimVryntTokenDto) returns (claimVryntTokenResponse) {}
+  rpc listCollectionsWithOwnedComponents (ListCollectionsWithOwnedComponentsDto) returns (ListCollectionsResponse) {}
+}

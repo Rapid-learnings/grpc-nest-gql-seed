@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package admins;
+
+import "commons.proto";
+import "user.proto";
+
+message ListUsersDto {
+	string userId = 1;
+	string status = 2;
+	string sortBy = 3;
+	int32 sortOrder = 4;
+	int32 limit = 5;
+	int32 offset = 6;
+	bool canCreateCollection = 7;
+	bool isBlocked = 8;
+	string role = 9;
+	bool twoFactorAuth = 10;
+	bool isProfileUpdated = 11;
+	bool isEmailVerified = 12;
+	bool spendVryntPlatformCredit= 13;
+	bool spendViaCreditCard = 14;
+	bool claimVryntToken = 15;
+	string name = 16;
+	string email  = 17;
+	string username = 18;
+	string mobile = 19;
+	string metamask_id = 20;
+}
+
+message ListUsersResponse {
+	repeated users.User users = 1;
+	int32 totalUsers = 2;
+}
+
+message UpdateUserDto {
+	string userId = 1;
+	string email = 2;
+	string first_name = 3;
+	string username = 4;
+	string mobile = 5;
+	string socialTelegram = 6;
+	string socialDiscord = 7;
+	string socialTwitter = 8;
+	string socialInstagram = 9;
+	string socialYoutube = 10;
+	string socialTiktok = 11;
+	string socialTwitch = 12;
+	bool canCreateCollection = 13;
+	bool spendVryntPlatformCredit = 14;
+	bool spendViaCreditCard = 15;
+	bool claimVryntToken = 16;
+	string profileImageUrl = 17;
+	string status = 18; 
+	bool isBlocked = 19;
+	string role = 20;
+	string last_name = 21;
+}
+message UpdateUserResponse {
+	users.User user = 1;
+	string message = 2;
+}
+
+message PlatformConstant {
+	int32 DirectmarketplaceDistributiontoVRYNTProceedspool = 1;
+	int32 DirectMarketplaceDitributiontoArtistsProceedsPool = 2;
+	int32 ConsumerMarketplaceDistributiontoVRYNTProceedsPoolcomponents = 3;
+	int32 ConsumerMarketplaceDistributiontoArtistsProceedsPoolcomponents = 4;
+	int32 ConsumerMarketplaceDistributiontoVRYNTProceedsPool = 5;
+	int32 ConsumermarketplaceDistributiontoArtistProceedspoolNFT = 6;
+	int32 ConsumermarketplaceDistributiontoPreviousCollectorProceedspoolNFT = 7;
+	int32 MarketLiquidityBootstrapPool = 8;
+	int32 Earlygalleryrewartclaim = 9;
+	int32 VRYNTCredittoVRYNTConversionMethodTreasuryFunded = 10;
+	int32 VRYNTCredittoVRYNTConvertionMethodSupplyFunded = 11;
+	int32 VRYNTCreditInactivityFee = 12;
+	int32 CreditPurchaseComponentHolding = 13;
+	string name = 14;
+	bool AllowedCollectionCreation = 15;
+}
+
+message UpdatePlatformConstantDto {
+	int32 DirectmarketplaceDistributiontoVRYNTProceedspool = 1;
+	int32 DirectMarketplaceDitributiontoArtistsProceedsPool = 2;
+	int32 ConsumerMarketplaceDistributiontoVRYNTProceedsPoolcomponents = 3;
+	int32 ConsumerMarketplaceDistributiontoArtistsProceedsPoolcomponents = 4;
+	int32 ConsumerMarketplaceDistributiontoVRYNTProceedsPool = 5;
+	int32 ConsumermarketplaceDistributiontoArtistProceedspoolNFT = 6;
+	int32 ConsumermarketplaceDistributiontoPreviousCollectorProceedspoolNFT = 7;
+	int32 MarketLiquidityBootstrapPool = 8;
+	int32 Earlygalleryrewartclaim = 9;
+	int32 VRYNTCredittoVRYNTConversionMethodTreasuryFunded = 10;
+	int32 VRYNTCredittoVRYNTConvertionMethodSupplyFunded = 11;
+	int32 VRYNTCreditInactivityFee = 12;
+	int32 CreditPurchaseComponentHolding = 13;
+	string name = 14;
+	bool AllowedCollectionCreation = 15;
+  }
+  
+message UpdatePlatformConstantResponse {
+	string message = 1;
+	PlatformConstant platformConstant = 2;
+}
+
+message GetPlatformConstantDto {
+	string message = 1; 
+}
+
+message GetPlatformConstantResponse {
+	string message = 1;
+	PlatformConstant platformConstant = 2;
+}
+message DashboardVariable {
+	string unclaimedVryntCredit = 1;
+	string unclaimedVryntPlatformCredit = 2;
+	string NFTMinted = 3; 
+	string revenueGeneratedFromFees = 4;
+}
+
+message GetDashboardVariableDto {
+	string message = 1;
+}
+
+message GetDashboardVariableResponse {
+	DashboardVariable dashboardVariable = 1;
+}
+
+message MessageDef {
+	string message = 1; 
+}
+
+service AdminService {
+  rpc listUsers(ListUsersDto) returns (ListUsersResponse) {}
+  rpc updateUser(UpdateUserDto) returns (UpdateUserResponse) {}
+  rpc updatePlatformConstant(UpdatePlatformConstantDto) returns (UpdatePlatformConstantResponse) {}
+  rpc getPlatformConstant(GetPlatformConstantDto) returns (GetPlatformConstantResponse) {}
+  rpc healthCheck(MessageDef) returns (MessageDef) {}
+  rpc getDashboardVariable(GetDashboardVariableDto) returns (GetDashboardVariableResponse) {}
+}
