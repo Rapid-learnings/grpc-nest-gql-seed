@@ -11,26 +11,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import {
-  CreateUserDto,
-  ForgotPasswordDto,
-  LoginUserDto,
-  ResetPasswordDto,
-  OtpDto,
-  TwoFactorOtpDto,
-  UpdateProfileDto,
-  CheckUsernameDto,
-  CheckEmailDto,
-  RefreshTokenDto,
-  GoogleLoginDto,
-  AppleLoginDto,
-  SendEmailotpDto,
-  UploadProfilePictureDto,
-  UpdateUserDto,
-  GetUsersDto,
-  GetUserByIdDto,
-  UpdateMetamaskAddressByIdDto,
-} from './dto/user.dto';
+import { CreateUserDto, LoginUserDto } from './dto/user.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Role } from 'src/guards/role.enum';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
@@ -40,17 +21,7 @@ import * as appleSignin from 'apple-signin-auth';
 import { join } from 'path';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Auth, Roles, GetUserId } from 'src/user/guards/auth.guards';
-import {
-  LoginUserDef,
-  Users,
-  RefreshTokenDef,
-  SendOtpDef,
-  MessageDef,
-  UploadProfilePictureDef,
-  VerifyEmailResponseDef,
-  GetBalanceDef,
-  UpdateMetamaskAddressByIdDef,
-} from './typeDef/resolver-type';
+import { LoginUserDef, Users } from './typeDef/resolver-type';
 import { ListUsersDef } from 'src/admin/typeDef/resolver-type';
 import { HelperService } from 'src/helper/helper.service';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';

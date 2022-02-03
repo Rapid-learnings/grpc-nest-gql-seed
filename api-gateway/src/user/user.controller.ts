@@ -17,47 +17,22 @@ import {
   Inject,
   UploadedFile,
   UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
-import {
-  CreateUserDto,
-  ForgotPasswordDto,
-  LoginUserDto,
-  ResetPasswordDto,
-  OtpDto,
-  TwoFactorOtpDto,
-  UpdateProfileDto,
-  CheckUsernameDto,
-  CheckEmailDto,
-  RefreshTokenDto,
-  KycApplicantDto,
-  KycVerificationDto,
-} from './dto/user.dto';
+import { CreateUserDto, LoginUserDto } from './dto/user.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Role } from 'src/guards/role.enum';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { UserServiceClientOptions } from './user-svc.options';
 import { User2Service } from './user2.service';
-import { GeetestService, GeetestVerifyGuard } from 'nestjs-geetest';
 import { Auth, Roles, GetUserId } from 'src/guards/rest-auth.guard';
-import { Onfido, Region, Applicant, OnfidoApiError } from '@onfido/api';
-import { FileInterceptor } from '@nestjs/platform-express';
-
 @Controller('user')
 export class UserController implements OnModuleInit {
-  private onfido: any;
-
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private user2Service: User2Service,
-    private readonly geetestService: GeetestService,
-  ) {
-    this.onfido = new Onfido({
-      apiToken: process.env.ONFIDO_API_TOKEN,
-      // Supports Region.EU, Region.US and Region.CA
-      region: Region.EU,
-    });
-  }
+  ) {}
 
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
@@ -69,7 +44,7 @@ export class UserController implements OnModuleInit {
   }
 
   @Post('/login')
-  async login(@Body() loginUserDto) {
+  async login(@Body() loginUserDto: LoginUserDto) {
     try {
       this.logger.log(
         'info',
@@ -94,7 +69,7 @@ export class UserController implements OnModuleInit {
   }
 
   @Post('/create')
-  async create(@Body() createUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
     try {
       this.logger.log(
         'info',

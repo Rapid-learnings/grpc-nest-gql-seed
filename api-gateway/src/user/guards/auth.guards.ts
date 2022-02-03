@@ -21,6 +21,7 @@ import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { Role } from '../../guards/role.enum';
 import { SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { FalseLiteral } from 'ts-morph';
 
 export const ROLES_KEY = 'roles';
 
@@ -47,12 +48,6 @@ export class AuthGuard implements CanActivate {
     );
     if (req.headers && req.headers.authorization) {
       req.user = await this.validateToken(req.headers.authorization);
-      if (
-        ctx.getInfo().fieldName === 'listCollections' ||
-        ctx.getInfo().fieldName === 'listNFTs'
-      ) {
-        return true;
-      }
 
       if (!req.user) {
         await this.responseHandlerService.response(
@@ -61,7 +56,6 @@ export class AuthGuard implements CanActivate {
           null,
         );
       }
-      if (req.user.isBlocked === true) return false;
 
       if (!requiredRoles) {
         return true;
@@ -69,12 +63,7 @@ export class AuthGuard implements CanActivate {
         return requiredRoles.includes(req.user.role);
       }
     } else {
-      if (
-        ctx.getInfo().fieldName === 'listCollections' ||
-        ctx.getInfo().fieldName === 'listNFTs'
-      ) {
-        return true;
-      }
+      return false;
     }
 
     return false;
@@ -91,28 +80,8 @@ export class AuthGuard implements CanActivate {
 
     const token = auth.split(' ')[1];
 
-    try {
-      const tokenInfo = await this.oauthClient.getTokenInfo(token);
-      const email = tokenInfo.email;
-      const user = await this.user2Service.findOneByEmailOrUsername(email);
-      if (user) {
-        return user;
-      }
-    } catch (e) {}
-
-    // Apple auth
-    try {
-      const data = await appleSignin.verifyIdToken(
-        token,
-        process.env.APPLE_CLIENT_ID,
-      );
-      const appleId = data.sub;
-      const user = await this.user2Service.findOneByAppleId(appleId);
-      if (user) {
-        return user;
-      }
-    } catch (e) {}
     let reqUser = null;
+
     await jwt.verify(
       token,
       process.env.JWT_SECRET_KEY,

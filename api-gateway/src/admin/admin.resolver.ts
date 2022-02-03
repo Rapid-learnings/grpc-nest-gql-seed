@@ -40,7 +40,7 @@ export class AdminResolver implements OnModuleInit {
   }
 
   // listuser --> list - admin.admin.ts -  admin-msc
-  @Query((returns) => ListUsersDef, { name: 'Users' })
+  @Query((returns) => ListUsersDef, { name: 'listUsers' })
   @Roles(Role.Superadmin, Role.Subadmin)
   @Auth()
   async listUsers(
@@ -172,34 +172,6 @@ export class AdminResolver implements OnModuleInit {
       this.logger.log(
         'error',
         `APT-GATEWAY - get-platform-constant- for  - ${e}`,
-      );
-      e.details = JSON.parse(e.details);
-      await this.responseHandlerService.response(
-        e.details,
-        e.details.statusCode,
-        null,
-      );
-    }
-  }
-
-  // listDashboardVariables --> list - admin.admin.ts -  admin-msc
-  @Query((returns) => GetDashboardVariableDef, {
-    name: 'getDashboardVariable',
-  })
-  @Roles(Role.Superadmin, Role.Subadmin)
-  @Auth()
-  async GetDashboardVariable(@GetUserId() user) {
-    this.logger.log(
-      'info',
-      `APT-GATEWAY - get-dashboard-variable - for ${JSON.stringify(user)} )}`,
-    );
-    try {
-      const data = await this.adminService.getDashboardVariable({}).toPromise();
-      return data;
-    } catch (e) {
-      this.logger.log(
-        'error',
-        `APT-GATEWAY - get-dashboard-variable - for  - ${e}`,
       );
       e.details = JSON.parse(e.details);
       await this.responseHandlerService.response(

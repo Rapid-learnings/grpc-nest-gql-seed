@@ -117,14 +117,6 @@ message DashboardVariable {
 	string revenueGeneratedFromFees = 4;
 }
 
-message GetDashboardVariableDto {
-	string message = 1;
-}
-
-message GetDashboardVariableResponse {
-	DashboardVariable dashboardVariable = 1;
-}
-
 message MessageDef {
 	string message = 1; 
 }
@@ -135,5 +127,4 @@ service AdminService {
   rpc updatePlatformConstant(UpdatePlatformConstantDto) returns (UpdatePlatformConstantResponse) {}
   rpc getPlatformConstant(GetPlatformConstantDto) returns (GetPlatformConstantResponse) {}
   rpc healthCheck(MessageDef) returns (MessageDef) {}
-  rpc getDashboardVariable(GetDashboardVariableDto) returns (GetDashboardVariableResponse) {}
 }
