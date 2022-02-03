@@ -4,9 +4,9 @@ import { ClientOptions, Transport } from '@nestjs/microservices';
 export const UserServiceClientOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {
-    url: `${process.env.USER_SVC_URL}:${process.env.USER_SVC_PORT}`,
+    url: `${process.env.USER_SVC_URL}:${process.env.USER_SVC_PORT}`, // localhost:6000
     package: 'users',
-    protoPath: join(__dirname, '../_proto/user.proto'),
+    protoPath: join(__dirname, '../_proto/user.proto'), // path to protofile for user
     loader: {
       enums: String,
       objects: true,
