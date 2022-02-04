@@ -133,6 +133,18 @@ Scheduler microservice is an independent service. It is responsible for maintain
 - Runs a cron job every 10 seconds and triggers all events that should have been triggered.
 - Creating new event triggers via webhook.
 
+##### Get all items
+
+```http
+  POST /scheduler/create-event
+```
+
+| Parameter       | Type     | Description                                                    |
+| :-------------- | :------- | :------------------------------------------------------------- |
+| `scheduledDate` | `string` | **Required**. Date and Time in ISO string format               |
+| `type`          | `string` | **Required**. A string to classify events for specific purpose |
+| `id`            | `string` | **Required**. Unique id to call your webhooks with.            |
+
 ## Installation
 
 ### Api-gateway
