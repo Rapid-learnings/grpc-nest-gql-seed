@@ -20,48 +20,50 @@ export class SchedulerService {
     this.redisClient.connect();
   }
 
+  async callEndpoint(URL, payload) {
+    let response = null;
+    try {
+      // calling the post API for collection
+      response = await this.httpService.post(URL, payload).toPromise();
+    } catch (e) {
+      const { error, statusCode } = e.response.data;
+    }
+  }
+
   async triggerEvent(type, id) {
-    if (type === 'collectionId') {
-      // for collection
-      let response = null;
-      try {
-        // calling the post API for collection
-        response = await this.httpService
-          .post(`${process.env.BASE_URL}/collection/publish-collection/`, {
-            collectionId: id,
-          })
-          .toPromise();
-      } catch (e) {
-        const { error, statusCode } = e.response.data;
-      }
-    } else if (type === 'nftId' || type === 'offerId') {
-      let response = null;
-      try {
-        // calling the post API for NFT or NFT offer
-        response = await this.httpService
-          .post(`${process.env.BASE_URL}/collection/nft-auction-expiration/`, {
-            id,
-            type,
-          })
-          .toPromise();
-      } catch (e) {
-        const { error, statusCode } = e.response.data;
-      }
-    } else if (type === 'componentId') {
-      // calling the post API for Component
-      let response = null;
-      try {
-        response = await this.httpService
-          .post(
-            `${process.env.BASE_URL}/collection/component-auction-expiration/`,
-            {
-              componentId: id,
-            },
-          )
-          .toPromise();
-      } catch (e) {
-        const { error, statusCode } = e.response.data;
-      }
+    let payload = {};
+    let URL = '';
+    switch (type) {
+      case 'collectionId':
+        // await this.callEndpoint(`${process.env.BASE_URL}/collection/publish-collection/`, {
+        //      collectionId: id,
+        //    });
+        payload = { collectionId: id };
+        URL = `${process.env.BASE_URL}/collection/publish-collection/`;
+        break;
+      case 'nftId':
+        payload = {
+          id,
+          type,
+        };
+        URL = `${process.env.BASE_URL}/collection/nft-auction-expiration/`;
+        break;
+      case 'offerId':
+        payload = {
+          id,
+          type,
+        };
+        URL = `${process.env.BASE_URL}/collection/nft-auction-expiration/`;
+        break;
+      case 'componentId':
+        payload = {
+          componentId: id,
+        };
+        URL = `${process.env.BASE_URL}/collection/component-auction-expiration/`;
+        break;
+      default:
+        console.log(`invalid type`);
+        return;
     }
   }
 
@@ -93,7 +95,7 @@ export class SchedulerService {
   }
 
   async createEvent(dto) {
-    // creating event in DB
+    // creating event in DB, type is a string for differentiating between  events with different purposes
     let { scheduledDate, type, id } = dto;
     scheduledDate = Math.floor(new Date(scheduledDate).getTime() / 1000); // converting the iso date in string to time in seconds format
     // Using sorted set as a job queue

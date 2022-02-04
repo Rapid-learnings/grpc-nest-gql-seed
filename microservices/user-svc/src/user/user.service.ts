@@ -112,7 +112,6 @@ export class UserService {
           first_name,
           last_name,
           password: password,
-          isEmailVerified: true,
           username: username,
           role: Role.Superadmin,
         });
@@ -164,22 +163,13 @@ export class UserService {
     // check if account is blocked
     if (isMatch) {
       const result: any = {};
-      if (userToAttempt.isBlocked === true) {
-        await this.responseHandlerService.response(
-          "your account is suspended, contact admin",
-          HttpStatus.FORBIDDEN,
-          null
-        );
-      }
       // authentication user
       const user = await this.helperService.serializeUser(userToAttempt);
       result.user = user;
       result.message = "Authenticated";
-      if (!userToAttempt.twoFactorAuth) {
-        const token = await this.createJwtpayload(userToAttempt);
-        result.token = token.token;
-        result.expiresIn = token.expiresIn;
-      }
+      const token = await this.createJwtpayload(userToAttempt);
+      result.token = token.token;
+      result.expiresIn = token.expiresIn;
       return result;
     } else {
       await this.responseHandlerService.response(
@@ -194,78 +184,15 @@ export class UserService {
 
     // users prifile related filters
     if (listUsersDto.userId) {
-      matches.userId = listUsersDto.userId;
+      matches._id = listUsersDto.userId;
     }
 
     if (listUsersDto.status) {
       matches.status = listUsersDto.status;
     }
 
-    if (
-      listUsersDto.canCreateCollection !== null &&
-      listUsersDto.canCreateCollection !== undefined
-    ) {
-      matches.canCreateCollection =
-        listUsersDto.canCreateCollection === true ? true : false;
-    }
-
-    if (
-      listUsersDto.isBlocked !== null &&
-      listUsersDto.isBlocked !== undefined
-    ) {
-      matches.isBlocked = listUsersDto.isBlocked === true ? true : false;
-    }
-
     if (listUsersDto.role !== null && listUsersDto.role !== undefined) {
       matches.role = listUsersDto.role;
-    }
-
-    if (
-      listUsersDto.twoFactorAuth !== null &&
-      listUsersDto.twoFactorAuth !== undefined
-    ) {
-      matches.twoFactorAuth =
-        listUsersDto.twoFactorAuth === true ? true : false;
-    }
-
-    if (
-      listUsersDto.isProfileUpdated !== null &&
-      listUsersDto.isProfileUpdated !== undefined
-    ) {
-      matches.isProfileUpdated =
-        listUsersDto.isProfileUpdated === true ? true : false;
-    }
-
-    if (
-      listUsersDto.isEmailVerified !== null &&
-      listUsersDto.isEmailVerified !== undefined
-    ) {
-      matches.isEmailVerified =
-        listUsersDto.isEmailVerified === true ? true : false;
-    }
-
-    if (
-      listUsersDto.spendVryntPlatformCredit !== null &&
-      listUsersDto.spendVryntPlatformCredit !== undefined
-    ) {
-      matches.spendVryntPlatformCredit =
-        listUsersDto.spendVryntPlatformCredit === true ? true : false;
-    }
-
-    if (
-      listUsersDto.spendViaCreditCard !== null &&
-      listUsersDto.spendViaCreditCard !== undefined
-    ) {
-      matches.spendViaCreditCard =
-        listUsersDto.spendViaCreditCard === true ? true : false;
-    }
-
-    if (
-      listUsersDto.claimVryntToken !== null &&
-      listUsersDto.claimVryntToken !== undefined
-    ) {
-      matches.claimVryntToken =
-        listUsersDto.claimVryntToken === true ? true : false;
     }
 
     if (listUsersDto.name) {
@@ -287,11 +214,6 @@ export class UserService {
     if (listUsersDto.mobile) {
       matches.mobile = new RegExp("^" + listUsersDto.mobile, "i");
     }
-
-    if (listUsersDto.metamask_id) {
-      matches.metamask_id = new RegExp("^" + listUsersDto.metamask_id, "i");
-    }
-
     // sorting
     const sort: any = {};
 
@@ -388,9 +310,6 @@ export class UserService {
       );
     }
     // filters for users profile
-    if (updateProfileDto.isBlocked !== null) {
-      user.isBlocked = updateProfileDto.isBlocked === true ? true : false;
-    }
     if (updateProfileDto.status !== null) {
       user.status = updateProfileDto.status;
     }
@@ -414,83 +333,9 @@ export class UserService {
     if (updateProfileDto.email) {
       user.email = updateProfileDto.email;
     }
-    if (updateProfileDto.socialTelegram) {
-      user.socialTelegram = updateProfileDto.socialTelegram;
-    }
-    if (updateProfileDto.socialDiscord) {
-      user.socialDiscord = updateProfileDto.socialDiscord;
-    }
-    if (updateProfileDto.socialTwitter) {
-      user.socialTwitter = updateProfileDto.socialTwitter;
-    }
-    if (updateProfileDto.socialInstagram) {
-      user.socialInstagram = updateProfileDto.socialInstagram;
-    }
-    if (updateProfileDto.socialYoutube) {
-      user.socialYoutube = updateProfileDto.socialYoutube;
-    }
-    if (updateProfileDto.socialTiktok) {
-      user.socialTiktok = updateProfileDto.socialTiktok;
-    }
-    if (updateProfileDto.socialTwitch) {
-      user.socialTwitch = updateProfileDto.socialTwitch;
-    }
-    if (
-      updateProfileDto.canCreateCollection !== null &&
-      updateProfileDto.canCreateCollection !== undefined
-    ) {
-      user.canCreateCollection =
-        updateProfileDto.canCreateCollection === true ? true : false;
-    }
-    if (
-      updateProfileDto.spendVryntPlatformCredit !== null &&
-      updateProfileDto.spendVryntPlatformCredit !== undefined
-    ) {
-      user.spendVryntPlatformCredit =
-        updateProfileDto.spendVryntPlatformCredit === true ? true : false;
-    }
-    if (
-      updateProfileDto.spendViaCreditCard !== null &&
-      updateProfileDto.spendViaCreditCard !== undefined
-    ) {
-      user.spendViaCreditCard =
-        updateProfileDto.spendViaCreditCard === true ? true : false;
-    }
-    if (
-      updateProfileDto.claimVryntToken !== null &&
-      updateProfileDto.claimVryntToken !== undefined
-    ) {
-      user.claimVryntToken =
-        updateProfileDto.claimVryntToken === true ? true : false;
-    }
-    if (updateProfileDto.profileImageUrl) {
-      user.profileImageUrl = updateProfileDto.profileImageUrl;
-    }
 
-    if (updateProfileDto.stripe_account_id) {
-      user.stripe_account_id = updateProfileDto.stripe_account_id;
-    }
-
-    if (
-      updateProfileDto.twoFactorAuth !== null ||
-      updateProfileDto.twoFactorAuth !== undefined
-    ) {
-      user.twoFactorAuth = updateProfileDto.twoFactorAuth;
-    }
     if (user.role === Role.Superadmin) {
       user.twoFactorAuth = true;
-    }
-    if (
-      [
-        "61c0d407e2592d1aaac26b24",
-        "61c16ba983689bda6a7bcf4f",
-        "61c16c1b83689bda6a7c3772",
-        "61c16c4b83689bda6a7c69bb",
-        "61c16cb283689bda6a7cd010",
-      ].includes(user._id.toString())
-    ) {
-      //temp changes
-      user.twoFactorAuth = false;
     }
     try {
       // check if user profile updated successfully and after confirmation saving data to db
