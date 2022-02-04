@@ -4,7 +4,43 @@
 
 ## Description
 
-##### How gRPC works?
+### gRPC
+
+gRPC is the concept of defining a service in terms of functions (methods) that can be called remotely. For each method, we define the parameters and return types. Services, parameters, and return types are defined in .proto files using Google's open source language-neutral protocol buffers mechanism.
+
+- To start building gRPC-based microservices, we need to install the packages mentioned below:
+  - npm i --save @grpc/grpc-js @grpc/proto-loader
+    As other Nest microservices transport layer implementations, you select the gRPC transporter mechanism using the transport property of the options object passed to the createMicroservice() method.
+    In the following example, we'll set up a microservice.
+    The options property provides metadata about that service; its properties are described below.
+
+#### Creating Microservice
+
+_microservices\microservicename-svc\src\main.ts_
+
+```javascript
+async function() {
+const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  transport: Transport.GRPC,
+  options: {
+    url: 'localhost:6600',
+    package: 'microservicename',
+    protoPath: join(__dirname, 'microservicename/microservicename.proto'),
+  },
+});
+}
+```
+
+#### Options
+
+- **Package** - Protobuf package name (matches package setting from .proto file). Required
+- **ProtoPath** - Absolute (or relative to the root dir) path to the .proto file. Required
+- **Url** - Connection url. String in the format ip address/dns name:port (for example, 'localhost:50051') defining the address/port on which the transporter establishes a connection. Optional. Defaults to 'localhost:5000'
+- **ProtoLoader** - NPM package name for the utility to load .proto files. Optional.Defaults to '@grpc/proto-loader'
+- **Loader** - @grpc/proto-loader options. These provide detailed control over the behavior of .proto files.
+- **Credentials** - Server credentials.
+
+### How gRPC works?
 
 In gRPC, there is gRPC server, gRPC client and protocol buffers.
 
@@ -91,6 +127,8 @@ _api-gateway\src\user\user.controller.ts_
   }
 ```
 
+For more detailed information, visit https://docs.nestjs.com/microservices/grpc.
+
 ## Brief Architecture Overview
 
 We have created microservices using nestjs [nestjs.com] and gRPC. We have following components in our solution -
@@ -165,9 +203,9 @@ Scheduler microservice is an independent service. It is responsible for maintain
 2. Now move into the respective "microservices" using cd microservices .
 3. Now repeat step 1.2 for each microservice in "microservices" directory.
 4. Place the respective .env file in every microservice if not already done.
-5. build the application using `npm run build` for every microservice
-6. to run project in dev/watch mode run `npm run start:dev` for every microservice
-7. to run project in prod mode run `npm run start:prod` for every microservice
+5. build the application using `npm run build` for every microservice.
+6. to run project in dev/watch mode run `npm run start:dev` for every microservice.
+7. to run project in prod mode run `npm run start:prod` for every microservice.
 
 ## Appendix
 
