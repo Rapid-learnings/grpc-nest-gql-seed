@@ -1,4 +1,4 @@
-# NestJs gRPC and GraphQL Example
+# NestJs gRPC and GraphQL Seed
 
 ![](https://github.com/Rapid-learnings/grpc-nest-gql-seed/blob/master/readme%20assets/images/Logo%20-%20Horiztonal.jpeg)
 
