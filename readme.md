@@ -125,6 +125,14 @@ User microservice is responsible for providing services for user profile managem
 Admin microservice is responsible for providing services for Admin Dashboard. transactions. It interacts with the dashboardvariables collection of the database.
 This whole system uses a MongoDB Atlas as primary database.
 
+### Scheduler Microservice
+
+Scheduler microservice is an independent service. It is responsible for maintaining a Job queue used that can be used to schedule events which can trigger some kind of work like call a webhook or invoke a function. It uses a sorted set in Redis for implementing the Job queue. In our applications, it is used by collection microservice for scheduling collections for publishing, expiring auctions and auction offers for components and NFTs at a specific time.
+
+- It uses a sorted set in Redis for implementing the Job queue.
+- Runs a cron job every 10 seconds and triggers all events that should have been triggered.
+- Creating new event triggers via webhook.
+
 ## Installation
 
 ### Api-gateway
@@ -141,6 +149,7 @@ This whole system uses a MongoDB Atlas as primary database.
 1. cd microservices
    - admin svc
    - user svc
+   - scheduler svc
 2. Now move into the respective "microservices" using cd microservices .
 3. Now repeat step 1.2 for each microservice in "microservices" directory.
 4. Place the respective .env file in every microservice if not already done.
