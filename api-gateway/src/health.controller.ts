@@ -29,8 +29,23 @@ export class HealthController {
           ),
         () =>
           this.http.pingCheck(
+            'wallet app',
+            'http://localhost:7000/api/v1/wallet/health',
+          ),
+        () =>
+          this.http.pingCheck(
+            'collection app',
+            'http://localhost:7000/api/v1/collection/health',
+          ),
+        () =>
+          this.http.pingCheck(
             'user app',
             'http://localhost:7000/api/v1/user/health',
+          ),
+        () =>
+          this.http.pingCheck(
+            'bidding app',
+            'http://localhost:7000/api/v1/bidding/health',
           ),
       ]);
     } catch (e) {

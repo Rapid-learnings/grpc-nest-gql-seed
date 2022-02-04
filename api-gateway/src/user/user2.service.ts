@@ -36,4 +36,27 @@ export class User2Service {
       .toPromise();
     return data;
   }
+
+  async findOneByAppleId(appleId) {
+    const data = await this.userService
+      .findOneByAppleId({ appleId })
+      .toPromise();
+    return data;
+  }
+
+  async findOneById(id) {
+    let data = await this.userService.findOneById({ id }).toPromise();
+    data = await this.helperService.serializeUser(data);
+    return data;
+  }
+
+  async validateUserByJwt(payload) {
+    const data = await this.userService.validateUserByJwt(payload).toPromise();
+    return data;
+  }
+
+  async searchUsers(searchUsersDto) {
+    const data = await this.userService.searchUsers(searchUsersDto).toPromise();
+    return data;
+  }
 }

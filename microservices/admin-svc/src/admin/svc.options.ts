@@ -1,12 +1,12 @@
-import { join } from "path";
-import { ClientOptions, Transport } from "@nestjs/microservices";
+import { join } from 'path';
+import { ClientOptions, Transport } from '@nestjs/microservices';
 
 export const UserServiceClientOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {
     url: `${process.env.USER_SVC_URL}:${process.env.USER_SVC_PORT}`,
-    package: "users",
-    protoPath: join(__dirname, "../_proto/user.proto"),
+    package: 'users',
+    protoPath: join(__dirname, '../_proto/user.proto'),
     loader: {
       enums: String,
       objects: true,

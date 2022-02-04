@@ -129,10 +129,6 @@ export class ListUsersDto {
 
   @IsBoolean()
   @IsOptional()
-  readonly canCreateCollection: boolean;
-
-  @IsBoolean()
-  @IsOptional()
   readonly isBlocked: boolean;
 
   @IsString()
@@ -150,18 +146,6 @@ export class ListUsersDto {
   @IsString()
   @IsNotEmpty()
   readonly isEmailVerified: boolean;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly spendVryntPlatformCredit: boolean;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly spendViaCreditCard: boolean;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly claimVryntToken: boolean;
 
   @IsOptional()
   @IsString()
@@ -182,11 +166,6 @@ export class ListUsersDto {
   @IsString()
   @IsNotEmpty()
   readonly mobile: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  readonly metamask_id: string;
 }
 
 export class UpdateUserDto {
@@ -260,18 +239,6 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   readonly socialTwitch: string;
-
-  @IsBoolean()
-  readonly canCreateCollection: boolean;
-
-  @IsBoolean()
-  readonly spendVryntPlatformCredit: boolean;
-
-  @IsBoolean()
-  readonly spendViaCreditCard: boolean;
-
-  @IsBoolean()
-  readonly claimVryntToken: boolean;
 
   @IsOptional()
   @IsString()

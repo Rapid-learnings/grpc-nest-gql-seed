@@ -154,41 +154,11 @@ export class Users {
   @IsNotEmpty()
   readonly isBlocked: boolean;
 
-  @Field({
-    nullable: true,
-    description: 'toggle to allow spending vrynt platform credit',
-  })
-  @IsOptional()
-  @IsBoolean()
-  @IsNotEmpty()
-  readonly spendVryntPlatformCredit: boolean;
-
-  @Field({ nullable: true, description: 'toggle to allow use of credit card' })
-  @IsOptional()
-  @IsBoolean()
-  @IsNotEmpty()
-  readonly spendViaCreditCard: boolean;
-
-  @Field({
-    nullable: true,
-    description: 'toggle to allow claim of vrynt token',
-  })
-  @IsOptional()
-  @IsBoolean()
-  @IsNotEmpty()
-  readonly claimVryntToken: boolean;
-
   @Field({ nullable: true, description: "user's stripe account id" })
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   readonly stripe_account_id: string;
-
-  @Field({ nullable: true, description: 'toggle to allow collection creation' })
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  readonly canCreateCollection: boolean;
 
   @Field({ nullable: true, description: 'flag to check if profile is updated' })
   @IsOptional()
@@ -228,4 +198,124 @@ export class LoginUserDef {
   @IsOptional()
   @IsString()
   readonly refreshToken: string;
+}
+
+@ObjectType()
+export class VerifyEmailResponseDef {
+  @Field(() => Users, { nullable: true, description: 'users information' })
+  @IsOptional()
+  readonly user: Users;
+
+  @Field({ nullable: true, description: 'token for authentication' })
+  @IsOptional()
+  @IsString()
+  readonly token: string;
+
+  @Field({
+    nullable: true,
+    description: 'tells the status after verification of email',
+  })
+  @IsOptional()
+  @IsString()
+  readonly message: string;
+
+  @Field({ nullable: true, description: 'tells about token expiration' })
+  @IsOptional()
+  @IsString()
+  readonly expiresIn: string;
+}
+
+@ObjectType()
+export class RefreshTokenDef {
+  @Field({ nullable: true, description: 'token for authentication' })
+  @IsOptional()
+  @IsString()
+  readonly token: string;
+
+  @Field({
+    nullable: true,
+    description: 'tells the status after token refresh',
+  })
+  @IsOptional()
+  @IsString()
+  readonly message: string;
+
+  @Field({ nullable: true, description: 'tells about token expiration' })
+  @IsOptional()
+  @IsString()
+  readonly expiresIn: string;
+
+  @Field({ nullable: true, description: 'to refresh token' })
+  @IsOptional()
+  @IsString()
+  readonly refreshToken: string;
+}
+
+@ObjectType()
+export class SendOtpDef {
+  @Field({ nullable: true, description: 'tells the status after otp refresh' })
+  @IsOptional()
+  @IsString()
+  readonly message: string;
+
+  @Field({ nullable: true, description: 'tells about token expiration' })
+  @IsOptional()
+  @IsString()
+  readonly expiresIn: string;
+
+  @Field({ nullable: true, description: 'tells about fortask' })
+  @IsOptional()
+  @IsString()
+  readonly forTask: string;
+}
+
+@ObjectType()
+export class MessageDef {
+  @Field({ nullable: true, description: 'tells the status of a specific task' })
+  @IsOptional()
+  @IsString()
+  readonly message: string;
+}
+
+@ObjectType()
+export class UploadProfilePictureDef {
+  @Field({ nullable: true, description: 'tells the status of upload picture' })
+  @IsOptional()
+  @IsString()
+  readonly message: string;
+
+  @Field({ nullable: true, description: 'tells about the profileimage url' })
+  @IsOptional()
+  @IsString()
+  readonly profileImageUrl: string;
+}
+
+@ObjectType()
+export class UpdateUserDef {
+  @Field({
+    defaultValue: true,
+    description: 'tells the state of a specific user',
+  })
+  state: boolean;
+}
+
+@ObjectType()
+export class Balance {
+  @Field({ nullable: true, description: 'tells about the assetcode' })
+  assetCode: string;
+
+  @Field({
+    nullable: true,
+    description: 'tells the amount',
+  })
+  amount: number;
+}
+
+@ObjectType()
+export class GetBalanceDef {
+  @Field(() => [Balance], {
+    nullable: true,
+    description: 'tells balance information',
+  })
+  balance: Balance[];
 }

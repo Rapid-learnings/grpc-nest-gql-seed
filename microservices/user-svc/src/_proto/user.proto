@@ -33,20 +33,15 @@ message User {
   string createdAt = 21;
   string appleId = 22;
   bool isBlocked = 23;
-  bool canCreateCollection = 24;
-  bool spendVryntPlatformCredit = 25;
-  bool spendViaCreditCard = 26;
-  bool claimVryntToken = 27;
-  string stripe_account_id = 28;
-  string kyc_applicant_id = 29;
-  string last_name = 30;
-  bool isProfileUpdated = 31;
-  string kyc_status = 32;
-  string name = 33;
-  string metamask_id = 34;
-  repeated Balance balance = 35;
-  repeated GalleryCollections galleryCollections = 36;
-  int32 kyc_counter = 37; 
+  string stripe_account_id = 24;
+  string kyc_applicant_id = 25;
+  string last_name = 26;
+  bool isProfileUpdated = 27;
+  string kyc_status = 28;
+  string name = 29;
+  string metamask_id = 30;
+  repeated Balance balance = 31;
+  int32 kyc_counter = 32; 
 }
 
 message GalleryCollections {
@@ -62,6 +57,15 @@ message Balance {
   string withheldAmount = 3;
 }
 
+message GoogleUser{
+  string firstName = 1;
+  string lastName = 2;
+  string email = 3;
+  string imageUrl = 4;
+  string accessToken = 5;
+  string name = 6;
+}
+
 message LoginResponse {
   string token = 1;
   User user = 2;
@@ -74,6 +78,24 @@ message LoginResponse {
 message Token {
   string token = 1;
   int32 expiresIn = 2;
+}
+
+message OtpDto {
+  string otp = 1;
+  User user = 2;
+  string email =3;
+}
+
+message ResetPasswordDto {
+  string newPassword = 1;
+  string currentPassword = 2;
+  User user = 3;
+}
+
+message ForgotPasswordDto {
+  string password = 1;
+  string email = 2;
+  string otp = 3;
 }
 
 message UpdateProfileDto {
@@ -95,18 +117,43 @@ message UpdateProfileDto {
   User user = 16;
   bool isAdmin = 17;
   bool isBlocked = 18;
-  bool canCreateCollection = 19;
-  bool spendVryntPlatformCredit = 20;
-  bool spendViaCreditCard = 21;
-  bool claimVryntToken = 22;
-  string stripe_account_id = 23;
-  string role = 24;
-  string profileImageUrl = 25;
-  string last_name = 26;
+  string stripe_account_id = 19;
+  string role = 20;
+  string profileImageUrl = 21;
+  string last_name = 22;
 }
 message UpdateProfileResponse {
   string message = 1;
   User user = 2;
+}
+
+message CheckEmailDto {
+  string newEmail = 1;
+  string userId = 2;
+}
+
+message SendEmailOtp{
+  string email = 1;
+  User user = 2;
+}
+message VerifyEmailResponse {
+  string message = 1;
+  string token = 2;
+  string expiresIn = 3;
+  User user = 4;
+}
+
+message ProfilePicDto {
+  string fileUrl = 1;
+  User user = 2;
+}
+message CheckUsernameDto {
+  string username = 1;
+}
+
+message AppleLoginDto {
+  string code = 1;
+  string id_token = 2;
 }
 
 message ListUsersDto { 
@@ -116,20 +163,16 @@ message ListUsersDto {
   int32 sortOrder = 4;
   int32 limit = 5;
   int32 offset = 6;
-  bool canCreateCollection = 7;
   bool isBlocked = 8;
   string role = 9;
   bool twoFactorAuth = 10;
   bool isProfileUpdated = 11;
   bool isEmailVerified = 12;
-  bool spendVryntPlatformCredit= 13;
-  bool spendViaCreditCard = 14;
-  bool claimVryntToken = 15;
-  string name = 16;
-  string email  = 17;
-  string username = 18;
-  string mobile = 19;
-  string metamask_id = 20;
+  string name = 13;
+  string email  = 14;
+  string username = 15;
+  string mobile = 16;
+  string metamask_id = 17;
 }
 
 message ListUsersResponse {
@@ -137,15 +180,91 @@ message ListUsersResponse {
   int32 totalUsers = 2;
 }
 
+message KycApplicantDto {
+  string userId = 1;
+}
+
+message Address {
+  string street = 1;
+  string town = 2;
+  string postcode = 3;
+  string country = 4; 
+}
+
+message KycApplicantDef {
+  string message = 1;
+  User user = 2;
+}
+
+message FindByKycIdAndUpdateDto {
+  string kyc_applicant_id = 1;
+  string kyc_status = 2;
+  bool incrementKycCounter = 3;
+}
+
 message MessageDef {
   string message = 1;
 }
 
+message GetBalanceDto {
+  string userId = 1;
+}
+
+message GetBalanceResponse {
+  repeated Balance balance = 1;
+}
+
+message UpdateBalanceDto {
+  string assetCode = 1;
+  string amount = 2;
+  string userId = 3;
+  string withheldAmount = 4;
+}
+
+message GetUsersDto {
+  repeated string userIds = 1;
+  repeated string names = 2;
+  string sortBy = 3;
+  int32 sortOrder = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+  bool canCreateCollection = 7;
+  bool isBlocked = 8;
+  string role = 9;
+  bool twoFactorAuth = 10;
+}
+
+message GetUserByIdDto {
+  string id = 1;
+}
+
 service UserService {
   rpc create (commons.createUserDto) returns (LoginResponse) {}
+  rpc twoFactorOtp (commons.JwtPayload) returns (commons.SendOtpResponse) {}
+  rpc twoFactorVerify (commons.TwoFactorOtpDto) returns (LoginResponse) {}
   rpc findOneByEmailOrUsername(commons.EmailOrUsername) returns (User) {}
+  rpc findOneByAppleId(commons.AppleId) returns (User) {}
+  rpc validateUserByJwt(commons.JwtPayload) returns (LoginResponse) {}
   rpc validateUserByPassword(commons.LoginUserDto) returns (LoginResponse) {}
+  rpc googleLogin(GoogleUser) returns (LoginResponse) {}
+  rpc sendEmailOtp(SendEmailOtp) returns (commons.SendOtpResponse) {}
+  rpc verifyEmailOtp(OtpDto) returns (VerifyEmailResponse) {}
+  rpc forgotPasswordOtp(commons.JwtPayload) returns (commons.SendOtpResponse) {}
+  rpc forgotPasswordVerify(ForgotPasswordDto) returns (commons.VerifyOtpResponse) {}
+  rpc resetPassword(ResetPasswordDto) returns (commons.VerifyOtpResponse) {}
   rpc updateProfile(UpdateProfileDto) returns (UpdateProfileResponse) {}
+  rpc checkEmail(CheckEmailDto) returns (commons.VerifyOtpResponse) {}
+  rpc uploadProfilePicture(ProfilePicDto) returns (commons.VerifyOtpResponse) {}
+  rpc checkUsername(CheckUsernameDto) returns (commons.VerifyOtpResponse) {}
+  rpc appleLogin(AppleLoginDto) returns (LoginResponse) {}
+  rpc findOneById(commons.UserId) returns (User) {}
   rpc listUsers(ListUsersDto) returns (ListUsersResponse) {}
+  rpc kycCreateApplicant(KycApplicantDto) returns (KycApplicantDef) {}
+  rpc findByKycIdAndUpdate(FindByKycIdAndUpdateDto) returns (MessageDef) {}
   rpc healthCheck(MessageDef) returns (MessageDef) {}
+  rpc getBalance(GetBalanceDto) returns (GetBalanceResponse) {}
+  rpc balanceUpdate(UpdateBalanceDto) returns (MessageDef) {}
+  rpc getUsersByFilters(GetUsersDto) returns (ListUsersResponse) {}
+  rpc getUserById (GetUserByIdDto) returns (User) {}
+  rpc updateWithheldBalance (UpdateBalanceDto) returns (MessageDef) {}
 }

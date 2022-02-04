@@ -47,9 +47,7 @@ export class RestAuthGuard implements CanActivate {
     if (req.headers && req.headers.authorization) {
       req.user = await this.validateToken(req.headers.authorization);
 
-      if (!req.user) {
-        return false;
-      }
+      if (req.user.isBlocked === true) return false;
       if (!requiredRoles) {
         return true;
       } else {
@@ -69,7 +67,27 @@ export class RestAuthGuard implements CanActivate {
     }
 
     const token = auth.split(' ')[1];
+    try {
+      const tokenInfo = await this.oauthClient.getTokenInfo(token);
+      const email = tokenInfo.email;
+      const user = await this.user2Service.findOneByEmailOrUsername(email);
+      if (user) {
+        return user;
+      }
+    } catch (e) {}
 
+    // Apple auth
+    try {
+      const data = await appleSignin.verifyIdToken(
+        token,
+        process.env.APPLE_CLIENT_ID,
+      );
+      const appleId = data.sub;
+      const user = await this.user2Service.findOneByAppleId(appleId);
+      if (user) {
+        return user;
+      }
+    } catch (e) {}
     let reqUser = null;
     await jwt.verify(
       token,

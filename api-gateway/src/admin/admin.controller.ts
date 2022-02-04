@@ -1,30 +1,17 @@
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import {
   Controller,
-  Req,
   Get,
   Post,
-  Delete,
-  Query,
   Body,
-  Param,
   Inject,
   OnModuleInit,
-  NotFoundException,
-  Header,
-  UseGuards,
   Logger,
 } from '@nestjs/common';
-import {
-  UpdateUserDto,
-  ListUsersDto,
-  UpdatePlatformConstantDto,
-} from './dto/admin.dto';
-import { Role } from 'src/guards/role.enum';
+import { UpdateUserDto } from './dto/admin.dto';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { UserServiceClientOptions } from '../user/user-svc.options';
 import { AdminServiceClientOptions } from './admin-svc.options';
-import { AuthGuard } from '@nestjs/passport';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 @Controller('admin')
 export class AdminController implements OnModuleInit {

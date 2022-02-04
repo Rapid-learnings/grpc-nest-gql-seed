@@ -4,6 +4,8 @@ import { LoggerMiddleware } from './logger.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
+import { GoogleStrategy } from './user/socialsignin/google.strategy';
+import { UploadModule } from './upload/upload.module';
 import { AppController } from './app.controller';
 import { HealthController } from './health.controller';
 import { TerminusModule } from '@nestjs/terminus';
@@ -11,6 +13,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { GraphQLError } from 'graphql';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { AdminModule } from './admin/admin.module';
+import { WalletModule } from './wallet/wallet.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { LogLevel } from '@sentry/types';
@@ -25,6 +28,7 @@ import { LogLevel } from '@sentry/types';
       debug: false,
       formatError: (error: GraphQLError) => {
         console.log(JSON.stringify(error));
+        //const variableType = error.extensions.exception.details ? error.extensions.exception.details : error.extensions.exception.message
         const graphQLFormattedError = {
           message:
             error.extensions.response.message ||
@@ -66,7 +70,9 @@ import { LogLevel } from '@sentry/types';
     }),
     UserModule,
     AdminModule,
+    UploadModule,
     TerminusModule,
+    WalletModule,
     SentryModule.forRoot({
       dsn: process.env.SENTRY_DSN,
       debug: true, //|| false,
@@ -74,6 +80,7 @@ import { LogLevel } from '@sentry/types';
       logLevel: LogLevel.Debug, //based on sentry.io loglevel //
     }),
   ],
+  providers: [GoogleStrategy],
   controllers: [AppController, HealthController],
 })
 export class AppModule implements NestModule {
