@@ -183,6 +183,50 @@ Scheduler microservice is an independent service. It is responsible for maintain
 | `type`          | `string` | **Required**. A string to classify events for specific purpose |
 | `id`            | `string` | **Required**. Unique id to call your webhooks with.            |
 
+### Environment variables
+
+| Name                          | Description                                      |
+| :---------------------------- | :----------------------------------------------- |
+| `PORT`                        | Port to API gateway                              |
+| `BASE_URL`                    | Base URL to Api Gatewat                          |
+| `DB_URL`                      | URL to MongoDB                                   |
+| `PASSWORD`                    | to create users                                  |
+| `USER_SVC_URL`                | domain to user microservice                      |
+| `USER_SVC_PORT`               | port to user microservice                        |
+| `USER_MSC_PORT`               | port to user microservice                        |
+| `USER_SERVER_URL`             | domain to user microservice                      |
+| `ADMIN_MSC_PORT`              | port to admin microservice                       |
+| `ADMIN_SERVER_URL`            | domain to admin microservice                     |
+| `WALLET_SVC_PORT`             | port to wallet microservice                      |
+| `WALLET_SVC_URL`              | domain to wallet microservice                    |
+| `ADMIN_EMAIL`                 | default admin email                              |
+| `ADMIN_USERNAME`              | default admin username                           |
+| `ADMIN_PASSWORD`              | default admin password                           |
+| `ADMIN_FIRST_NAME`            | default admin first name                         |
+| `ADMIN_LAST_NAME`             | default admin last name                          |
+| `GRPC_MAX_MESSAGE_SIZE_BYTES` | maximum grpc message size                        |
+| `SENTRY_DSN`                  | DSN to sentry account                            |
+| `APPLE_CLIENT_ID`             | Apple Auth client id                             |
+| `APPLE_REDIRECT_URL`          | Apple Auth - redirect webhook URL to verify auth |
+| `APPLE_TEAM_ID`               | Apple Auth team id                               |
+| `APPLE_KEY_IDENTIFIER`        | Apple Auth key id                                |
+| `APPLE_RSA_KEY_NAME`          | Apple Auth RSA file name .p8                     |
+| `JWT_SECRET_KEY`              | JWT secret                                       |
+| `AWS_S3_ACCESS_KEY`           | AWS account access key                           |
+| `AWS_S3_KEY_SECRET`           | AWS account secret key                           |
+| `AWS_S3_BUCKET`               | AWS S3 bucket name                               |
+| `ONFIDO_API_TOKEN`            | API token for ONFIDO KYC                         |
+| `CREATE_CHARGE_URL`           | coinbase create Charge API URL                   |
+| `COINBASE_API_KEY`            | coinbase commerce API Token                      |
+| `COINBASE_WEBHOOK_SECRET`     | coinbase commerce Auth Secret                    |
+| `SENDGRID_API_KEY`            | Sendgrid API Token                               |
+| `STRIPE_PUBLISHABLE_KEY`      | Stripe connect publishable key                   |
+| `STRIPE_SECRET_KEY`           | Stripe connect secret key                        |
+| `REDIS_URL`                   | URL to Redis DB                                  |
+| `SCHEDULER_MSC_PORT`          | Port to Scheduler microservice                   |
+| `GEETEST_ID`                  | Geetest account id                               |
+| `GEETEST_KEY`                 | Geetest account API Token for catcha v3          |
+
 ## Installation
 
 ### Api-gateway
