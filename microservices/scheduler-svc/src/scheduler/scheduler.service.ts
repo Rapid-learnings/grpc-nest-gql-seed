@@ -65,6 +65,8 @@ export class SchedulerService {
         console.log(`invalid type`);
         return;
     }
+
+    await this.callEndpoint(URL, payload);
   }
 
   @Cron('*/10 * * * * *') // running this function every 10 seconds
