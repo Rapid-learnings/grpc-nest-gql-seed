@@ -39,11 +39,16 @@ import { UserServiceClientOptions } from './user-svc.options';
 import { AuthGuard } from '@nestjs/passport';
 import * as appleSignin from 'apple-signin-auth';
 import { join } from 'path';
-import { User2Service } from './user2.service';
-import { GeetestService, GeetestVerifyGuard } from 'nestjs-geetest';
+import { User2Service } from './userHelper.service';
+import {
+  GeetestService,
+  GeetestVerifyGuard,
+  GeetestRegisterResultInterface,
+} from 'nestjs-geetest';
 import { Auth, Roles, GetUserId } from 'src/guards/rest-auth.guard';
 import { Onfido, Region, Applicant, OnfidoApiError } from '@onfido/api';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
 
 @Controller('user')
 export class UserController implements OnModuleInit {
@@ -68,11 +73,12 @@ export class UserController implements OnModuleInit {
   private userService: any;
 
   onModuleInit() {
-    this.userService = this.userServiceClient.getService<any>('UserService');
+    this.userService =
+      this.userServiceClient.getService<UserServiceInterface>('UserService');
   }
 
   @Get('/register-captcha')
-  async register(@Req() req) {
+  async register(@Req() req): Promise<GeetestRegisterResultInterface> {
     this.logger.log('info', `APT-GATEWAY - register-captcha `);
     const t = Date.now().toString();
     const data = await this.geetestService.register({ t });

@@ -27,6 +27,7 @@ import {
   TopUpWalletConfirmDef,
   ListTransactionsDef,
 } from './typeDef/resolver-type';
+import { WalletServiceInterface } from 'src/_proto/interfaces/wallet.interface';
 
 @Resolver((of) => Wallets)
 export class WalletResolver implements OnModuleInit {
@@ -42,7 +43,9 @@ export class WalletResolver implements OnModuleInit {
 
   onModuleInit() {
     this.walletService =
-      this.WalletServiceClient.getService<any>('WalletService');
+      this.WalletServiceClient.getService<WalletServiceInterface>(
+        'WalletService',
+      );
   }
 
   // createCharge --> create - wallet.wallet.ts - wallet-msc

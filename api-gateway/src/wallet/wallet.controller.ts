@@ -16,7 +16,8 @@ import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import { WalletServiceClientOptions } from './wallet-svc.options';
 import * as coinbase from 'coinbase-commerce-node';
-import { User2Service } from 'src/user/user2.service';
+import { User2Service } from 'src/user/userHelper.service';
+import { WalletServiceInterface } from 'src/_proto/interfaces/wallet.interface';
 
 @Controller('wallet')
 export class WalletController implements OnModuleInit {
@@ -36,7 +37,9 @@ export class WalletController implements OnModuleInit {
 
   onModuleInit() {
     this.walletService =
-      this.WalletServiceClient.getService<any>('WalletService');
+      this.WalletServiceClient.getService<WalletServiceInterface>(
+        'WalletService',
+      );
   }
 
   @Get('stripe/refresh/:id')

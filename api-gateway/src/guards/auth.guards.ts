@@ -16,7 +16,7 @@ import * as jwt from 'jsonwebtoken';
 import { google, Auth as Auth2 } from 'googleapis';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import * as appleSignin from 'apple-signin-auth';
-import { User2Service } from 'src/user/user2.service';
+import { User2Service } from 'src/user/userHelper.service';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { Role } from './role.enum';
 import { SetMetadata } from '@nestjs/common';

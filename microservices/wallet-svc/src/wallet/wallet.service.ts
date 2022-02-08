@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import { UserServiceClientOptions } from './svc.options';
+
 const paymentStatus = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
@@ -306,8 +307,9 @@ export class WalletService {
   // create or update transaction
   async createOrUpdateTransaction(transactionDto) {
     // fetching transaction using transaction id
+    let transaction;
     if (transactionDto._id) {
-      const transaction = await this.paymentModel.findOne({
+      transaction = await this.paymentModel.findOne({
         _id: transactionDto._id,
       });
 
@@ -318,79 +320,16 @@ export class WalletService {
           null,
         );
       }
-
       // updating values from DTO
-      if (transactionDto.id) {
-        transaction.id = transactionDto.id;
-      }
-
-      if (transactionDto.kind) {
-        transaction.kind = transactionDto.kind;
-      }
-
-      if (transactionDto.status) {
-        transaction.status = transactionDto.status;
-      }
-
-      if (transactionDto.amount_in) {
-        transaction.amount_in = transactionDto.amount_in;
-      }
-
-      if (transactionDto.amount_out) {
-        transaction.amount_out = transactionDto.amount_out;
-      }
-
-      if (transactionDto.amount_fee) {
-        transaction.amount_fee = transactionDto.amount_fee;
-      }
-
-      if (transactionDto.transaction_hash) {
-        transaction.transaction_hash = transactionDto.transaction_hash;
-      }
-
-      if (transactionDto.transaction_memo) {
-        transaction.transaction_memo = transactionDto.transaction_memo;
-      }
-
-      if (
-        transactionDto.refunded !== null ||
-        transactionDto.refunded !== undefined
-      ) {
-        transaction.refunded = transactionDto.refunded;
-      }
-
-      if (transactionDto.from) {
-        transaction.from = transactionDto.from;
-      }
-
-      if (transactionDto.to) {
-        transaction.to = transactionDto.to;
-      }
-
-      if (transactionDto.asset_code) {
-        transaction.asset_code = transactionDto.asset_code;
-      }
-
-      if (transactionDto.type) {
-        transaction.type = transactionDto.type;
-      }
-
-      if (transactionDto.message) {
-        transaction.message = transactionDto.message;
-      }
-
-      if (transactionDto.platform) {
-        transaction.platform = transactionDto.platform;
-      }
 
       if (transactionDto.reference_number) {
-        transaction.reference = transactionDto.reference_number;
+        transactionDto.reference = transactionDto.reference_number;
       }
 
-      if (transactionDto.status_eta) {
-        transaction.status_eta = transactionDto.status_eta;
-      }
-      await transaction.save();
+      transaction = await this.paymentModel.findByIdAndUpdate(
+        transactionDto._id,
+        transactionDto,
+      );
       return { transaction, message: 'transaction updated' };
     } else {
       // create a new transaction using the DTO
@@ -424,7 +363,7 @@ export class WalletService {
 
     const transactionObj = {
       from: user._id,
-      asset_code: 'VPC',
+      asset_code: 'BTC',
       type: 'credit',
       platform: 'web',
       amount_in: topUpWalletDto.amount,
@@ -556,7 +495,7 @@ export class WalletService {
         // updatin user wallet balance
         const { amount: currAmount } = await this.checkBalance({
           userId: transaction.from,
-          assetCode: 'VPC',
+          assetCode: 'BTC',
         });
 
         const updateBalanceResponse = await this.userService
@@ -644,7 +583,7 @@ export class WalletService {
 
         const { amount: currAmount } = await this.checkBalance({
           userId: transaction.from,
-          assetCode: 'VPC',
+          assetCode: 'BTC',
         });
 
         const updateBalanceResponse = await this.userService

@@ -12,6 +12,7 @@ import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { AdminServiceClientOptions } from './admin-svc.options';
 import { Admins, ListUsersDef, UpdateUserDef } from './typeDef/resolver-type';
 import { Role } from 'src/guards/role.enum';
+import { AdminServiceInterface } from 'src/_proto/interfaces/admin.interface';
 
 @Resolver((of) => Admins)
 export class AdminResolver implements OnModuleInit {
@@ -26,7 +27,8 @@ export class AdminResolver implements OnModuleInit {
   private adminService: any;
 
   onModuleInit() {
-    this.adminService = this.AdminServiceClient.getService<any>('AdminService');
+    this.adminService =
+      this.AdminServiceClient.getService<AdminServiceInterface>('AdminService');
   }
 
   // listuser --> list - admin.admin.ts -  admin-msc

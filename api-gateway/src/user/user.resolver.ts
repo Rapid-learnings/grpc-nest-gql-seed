@@ -53,6 +53,7 @@ import { ListUsersDef } from 'src/admin/typeDef/resolver-type';
 import { HelperService } from 'src/helper/helper.service';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { GraphQLScalarType, GraphQLError } from 'graphql';
+import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
 
 @Resolver((of) => Users)
 export class UserResolver implements OnModuleInit {
@@ -68,7 +69,8 @@ export class UserResolver implements OnModuleInit {
   private userService: any;
 
   onModuleInit() {
-    this.userService = this.userServiceClient.getService<any>('UserService');
+    this.userService =
+      this.userServiceClient.getService<UserServiceInterface>('UserService');
   }
 
   // Login

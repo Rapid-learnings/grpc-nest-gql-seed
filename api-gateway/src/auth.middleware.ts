@@ -13,7 +13,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 // import { ClientGrpc, Client } from '@nestjs/microservices';
 import { UserServiceClientOptions } from './user/user-svc.options';
-import { User2Service } from 'src/user/user2.service';
+import { User2Service } from 'src/user/userHelper.service';
 import { ResponseHandlerService } from './helper/response-handler.service';
 import * as appleSignin from 'apple-signin-auth';
 

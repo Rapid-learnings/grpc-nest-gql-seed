@@ -13,6 +13,8 @@ import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { UserServiceClientOptions } from '../user/user-svc.options';
 import { AdminServiceClientOptions } from './admin-svc.options';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
+import { AdminServiceInterface } from 'src/_proto/interfaces/admin.interface';
 @Controller('admin')
 export class AdminController implements OnModuleInit {
   constructor(
@@ -31,8 +33,10 @@ export class AdminController implements OnModuleInit {
   private adminService: any;
 
   onModuleInit() {
-    this.userService = this.userServiceClient.getService<any>('UserService');
-    this.adminService = this.AdminServiceClient.getService<any>('AdminService');
+    this.userService =
+      this.userServiceClient.getService<UserServiceInterface>('UserService');
+    this.adminService =
+      this.AdminServiceClient.getService<AdminServiceInterface>('AdminService');
   }
 
   @Post('updateUser')

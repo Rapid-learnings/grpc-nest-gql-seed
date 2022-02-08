@@ -129,7 +129,7 @@ export class UserService {
       const clientSecret = appleSignin.getClientSecret({
         clientID: process.env.APPLE_CLIENT_ID,
         teamID: process.env.APPLE_TEAM_ID,
-        keyIdentifier: process.env.APPLE_KEY_IDENTIFIER || "eXaunmL",
+        keyIdentifier: process.env.APPLE_KEY_IDENTIFIER,
         privateKeyPath: join(
           __dirname,
           `../../../../secrets/${process.env.APPLE_RSA_KEY_NAME}`
@@ -221,12 +221,6 @@ export class UserService {
   async create(createUserDto): Promise<User> {
     try {
       // fetching global variables from platformConstant
-      const { platformConstant } = await this.adminService
-        .getPlatformConstant({})
-        .toPromise();
-      // checking whether the user can createcollection or not
-      createUserDto.canCreateCollection =
-        platformConstant.AllowedCollectionCreation || false;
       const createdUser = new this.userModel(createUserDto);
       const user = await createdUser.save();
       return await this.helperService.serializeUser(user);
@@ -597,109 +591,6 @@ export class UserService {
     };
   }
 
-  async updateProfileinactive(user, updateProfileDto) {
-    //user = await this.findOneByEmail(user.email);
-
-    // check for users password and
-    if (updateProfileDto.newPassword && updateProfileDto.currentPassword) {
-      if (
-        !updateProfileDto.isAdmin &&
-        updateProfileDto.newPassword &&
-        updateProfileDto.currentPassword
-      ) {
-        const { newPassword, currentPassword } = updateProfileDto;
-        await this.resetPassword(user, { newPassword, currentPassword });
-      }
-
-      // fetching user via userid
-      user = await this.userModel.findOne({ _id: user._id });
-      // users profile related filters
-      if (updateProfileDto.isBlocked !== null) {
-        user.isBlocked = updateProfileDto.isBlocked === true ? true : false;
-      }
-
-      if (updateProfileDto.status !== null) {
-        user.status = updateProfileDto.status;
-      }
-
-      if (updateProfileDto.mobile) {
-        user.mobile = updateProfileDto.mobile;
-      }
-
-      if (updateProfileDto.username) {
-        user.username = updateProfileDto.username;
-      }
-
-      if (updateProfileDto.last_name !== null) {
-        user.last_name = updateProfileDto.last_name;
-      }
-
-      if (updateProfileDto.first_name !== null) {
-        user.first_name = updateProfileDto.first_name;
-      }
-
-      if (updateProfileDto.email) {
-        user.email = updateProfileDto.email;
-      }
-
-      if (updateProfileDto.socialTelegram !== null) {
-        user.socialTelegram = updateProfileDto.socialTelegram;
-      }
-
-      if (updateProfileDto.socialDiscord !== null) {
-        user.socialDiscord = updateProfileDto.socialDiscord;
-      }
-
-      if (updateProfileDto.socialTwitter !== null) {
-        user.socialTwitter = updateProfileDto.socialTwitter;
-      }
-
-      if (updateProfileDto.socialInstagram !== null) {
-        user.socialInstagram = updateProfileDto.socialInstagram;
-      }
-
-      if (updateProfileDto.socialYoutube !== null) {
-        user.socialYoutube = updateProfileDto.socialYoutube;
-      }
-
-      if (updateProfileDto.socialTiktok !== null) {
-        user.socialTiktok = updateProfileDto.socialTiktok;
-      }
-
-      if (updateProfileDto.socialTwitch !== null) {
-        user.socialTwitch = updateProfileDto.socialTwitch;
-      }
-
-      if (updateProfileDto.canCreateCollection !== null) {
-        user.canCreateCollection = updateProfileDto.canCreateCollection;
-      }
-
-      if (updateProfileDto.profileImageUrl !== null) {
-        user.profileImageUrl = updateProfileDto.profileImageUrl;
-      }
-
-      if (updateProfileDto.stripe_account_id !== null) {
-        user.stripe_account_id = updateProfileDto.stripe_account_id;
-      }
-
-      if (
-        updateProfileDto.twoFactorAuth !== null ||
-        updateProfileDto.twoFactorAuth !== undefined
-      ) {
-        user.twoFactorAuth = updateProfileDto.twoFactorAuth;
-      }
-      try {
-        // check if user profile updated successfully and after confirmation saving data to db
-        user.isProfileUpdated = true;
-        await user.save();
-        return {
-          user,
-          message: "profile updated successfully",
-        };
-      } catch (error) {}
-    }
-  }
-
   // function to update profile
   async updateProfile(user, updateProfileDto) {
     if (updateProfileDto.newPassword && updateProfileDto.currentPassword) {
@@ -722,87 +613,15 @@ export class UserService {
         null
       );
     }
-    // filters for users profile
-    if (updateProfileDto.isBlocked !== null) {
-      user.isBlocked = updateProfileDto.isBlocked === true ? true : false;
-    }
-    if (updateProfileDto.status !== null) {
-      user.status = updateProfileDto.status;
-    }
-    if (updateProfileDto.mobile) {
-      user.mobile = updateProfileDto.mobile;
-    }
-    if (updateProfileDto.username) {
-      user.username = updateProfileDto.username;
-    }
-    if (updateProfileDto.first_name) {
-      user.first_name = updateProfileDto.first_name;
-    }
-    if (updateProfileDto.last_name) {
-      user.last_name = updateProfileDto.last_name;
-    }
 
-    if (updateProfileDto.role) {
-      user.role = updateProfileDto.role;
-    }
-
-    if (updateProfileDto.email) {
-      user.email = updateProfileDto.email;
-    }
-    if (updateProfileDto.socialTelegram) {
-      user.socialTelegram = updateProfileDto.socialTelegram;
-    }
-    if (updateProfileDto.socialDiscord) {
-      user.socialDiscord = updateProfileDto.socialDiscord;
-    }
-    if (updateProfileDto.socialTwitter) {
-      user.socialTwitter = updateProfileDto.socialTwitter;
-    }
-    if (updateProfileDto.socialInstagram) {
-      user.socialInstagram = updateProfileDto.socialInstagram;
-    }
-    if (updateProfileDto.socialYoutube) {
-      user.socialYoutube = updateProfileDto.socialYoutube;
-    }
-    if (updateProfileDto.socialTiktok) {
-      user.socialTiktok = updateProfileDto.socialTiktok;
-    }
-    if (updateProfileDto.socialTwitch) {
-      user.socialTwitch = updateProfileDto.socialTwitch;
-    }
-    if (updateProfileDto.profileImageUrl) {
-      user.profileImageUrl = updateProfileDto.profileImageUrl;
-    }
-
-    if (updateProfileDto.stripe_account_id) {
-      user.stripe_account_id = updateProfileDto.stripe_account_id;
-    }
-
-    if (
-      updateProfileDto.twoFactorAuth !== null ||
-      updateProfileDto.twoFactorAuth !== undefined
-    ) {
-      user.twoFactorAuth = updateProfileDto.twoFactorAuth;
-    }
     if (user.role === Role.Superadmin) {
-      user.twoFactorAuth = true;
+      updateProfileDto.twoFactorAuth = true;
     }
-    if (
-      [
-        "61c0d407e2592d1aaac26b24",
-        "61c16ba983689bda6a7bcf4f",
-        "61c16c1b83689bda6a7c3772",
-        "61c16c4b83689bda6a7c69bb",
-        "61c16cb283689bda6a7cd010",
-      ].includes(user._id.toString())
-    ) {
-      //temp changes
-      user.twoFactorAuth = false;
-    }
+
     try {
       // check if user profile updated successfully and after confirmation saving data to db
       user.isProfileUpdated = true;
-      await user.save();
+      user = await this.userModel.findByIdAndUpdate(user._id, updateProfileDto);
       return {
         user,
         message: "profile updated successfully",
@@ -891,14 +710,6 @@ export class UserService {
 
     if (listUsersDto.status) {
       matches.status = listUsersDto.status;
-    }
-
-    if (
-      listUsersDto.canCreateCollection !== null &&
-      listUsersDto.canCreateCollection !== undefined
-    ) {
-      matches.canCreateCollection =
-        listUsersDto.canCreateCollection === true ? true : false;
     }
 
     if (
@@ -1172,14 +983,6 @@ export class UserService {
 
     if (orQuery.length !== 0) {
       matches["$or"] = orQuery;
-    }
-
-    if (
-      getUsersDto.canCreateCollection !== null &&
-      getUsersDto.canCreateCollection !== undefined
-    ) {
-      matches.canCreateCollection =
-        getUsersDto.canCreateCollection === true ? true : false;
     }
 
     if (getUsersDto.isBlocked !== null && getUsersDto.isBlocked !== undefined) {

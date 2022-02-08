@@ -13,6 +13,7 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import { UserServiceClientOptions } from './user-svc.options';
 import { HelperService } from 'src/helper/helper.service';
+import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
 
 @Injectable()
 export class User2Service {
@@ -27,7 +28,8 @@ export class User2Service {
   private userService: any;
 
   onModuleInit() {
-    this.userService = this.userServiceClient.getService<any>('UserService');
+    this.userService =
+      this.userServiceClient.getService<UserServiceInterface>('UserService');
   }
 
   async findOneByEmailOrUsername(emailOrUsername) {
