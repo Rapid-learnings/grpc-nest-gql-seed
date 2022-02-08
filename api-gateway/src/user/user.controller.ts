@@ -31,6 +31,7 @@ import {
   RefreshTokenDto,
   KycApplicantDto,
   KycVerificationDto,
+  UpdateUserDto,
 } from './dto/user.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Role } from 'src/guards/role.enum';
@@ -49,6 +50,12 @@ import { Auth, Roles, GetUserId } from 'src/guards/rest-auth.guard';
 import { Onfido, Region, Applicant, OnfidoApiError } from '@onfido/api';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
+import {
+  LoginUserDef,
+  MessageDef,
+  Users,
+  UpdateUserDef,
+} from './typeDef/resolver-type';
 
 @Controller('user')
 export class UserController implements OnModuleInit {
@@ -87,7 +94,7 @@ export class UserController implements OnModuleInit {
 
   @Post('/login')
   @UseGuards(GeetestVerifyGuard)
-  async login(@Body() loginUserDto) {
+  async login(@Body() loginUserDto: LoginUserDto): Promise<LoginUserDef> {
     try {
       this.logger.log(
         'info',
@@ -113,7 +120,7 @@ export class UserController implements OnModuleInit {
 
   @Post('/create')
   @UseGuards(GeetestVerifyGuard)
-  async create(@Body() createUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<CreateUserDto> {
     try {
       this.logger.log(
         'info',
@@ -142,7 +149,7 @@ export class UserController implements OnModuleInit {
     @GetUserId() user,
     @UploadedFile() file: Express.Multer.File,
     @Body() kycVerificationDto: KycVerificationDto,
-  ) {
+  ): Promise<MessageDef> {
     if (user.kyc_counter && user.kyc_counter >= 1) {
       await this.responseHandlerService.response(
         { error: 'you have reached maximum attempts' },
@@ -294,7 +301,9 @@ export class UserController implements OnModuleInit {
   }
 
   @Post('findOneByEmailOrUsername')
-  async findOneByEmailOrUsername(@Body('emailOrUsername') emailOrUsername) {
+  async findOneByEmailOrUsername(
+    @Body('emailOrUsername') emailOrUsername,
+  ): Promise<Users> {
     this.logger.log(
       'info',
       `APT-GATEWAY - find-One-by-email-or-username - for `,
@@ -305,7 +314,7 @@ export class UserController implements OnModuleInit {
     return data;
   }
 
-  async findOneByAppleId(appleId) {
+  async findOneByAppleId(appleId): Promise<Users> {
     const data = await this.userService
       .findOneByAppleId({ appleId })
       .toPromise();
@@ -318,7 +327,7 @@ export class UserController implements OnModuleInit {
   }
 
   @Post('updateProfile')
-  async updateUser(@Body() updateUserDto) {
+  async updateUser(@Body() updateUserDto): Promise<UpdateUserDef> {
     this.logger.log(
       'info',
       `APT-GATEWAY - update-profile - for ${JSON.stringify(updateUserDto)}`,

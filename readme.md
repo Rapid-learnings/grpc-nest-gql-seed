@@ -251,6 +251,16 @@ Scheduler microservice is an independent service. It is responsible for maintain
 6. to run project in dev/watch mode run `npm run start:dev` for every microservice.
 7. to run project in prod mode run `npm run start:prod` for every microservice.
 
+### Third Party Services
+
+- Authentication - Apple and Google SSO.
+- KYC - Onfido
+- Captcha - Geetest
+- Emails - Sendgrid
+- Stripe
+- coinbase commerce
+- AWS S3
+
 ## Appendix
 
 - Nest JS Docs - https://docs.nestjs.com/

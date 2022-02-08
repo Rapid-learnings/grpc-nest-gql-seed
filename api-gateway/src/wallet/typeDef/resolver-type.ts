@@ -186,3 +186,7 @@ export class ListTransactionsDef {
   @Field(() => [Transaction], { nullable: true, description: 'transactions' })
   transaction: Transaction[];
 }
+
+export class stripeRefreshAccountLinkDef {
+  url: string;
+}

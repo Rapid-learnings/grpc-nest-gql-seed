@@ -18,6 +18,10 @@ import { WalletServiceClientOptions } from './wallet-svc.options';
 import * as coinbase from 'coinbase-commerce-node';
 import { User2Service } from 'src/user/userHelper.service';
 import { WalletServiceInterface } from 'src/_proto/interfaces/wallet.interface';
+import {
+  TopUpWalletConfirmDef,
+  stripeRefreshAccountLinkDef,
+} from './typeDef/resolver-type';
 
 @Controller('wallet')
 export class WalletController implements OnModuleInit {
@@ -44,7 +48,9 @@ export class WalletController implements OnModuleInit {
 
   @Get('stripe/refresh/:id')
   @Redirect()
-  async stripeRefreshAccountLink(@Param('id') userId) {
+  async stripeRefreshAccountLink(
+    @Param('id') userId: string,
+  ): Promise<stripeRefreshAccountLinkDef> {
     const user = await this.user2Service.findOneById(userId);
     if (!user) {
       await this.responseHandlerService.response(
@@ -93,7 +99,10 @@ export class WalletController implements OnModuleInit {
   }
 
   @Post('cbwebhook')
-  async cbWebhook(@Body() webhookDto, @Req() req) {
+  async cbWebhook(
+    @Body() webhookDto,
+    @Req() req,
+  ): Promise<TopUpWalletConfirmDef> {
     this.logger.log(
       'info',
       `#API-Gateway web hook coinbase: ${JSON.stringify(webhookDto)}`,

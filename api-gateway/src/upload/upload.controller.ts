@@ -4,23 +4,20 @@ import { Express } from 'express';
 import {
   Controller,
   Req,
-  Get,
   HttpStatus,
   Post,
   UploadedFile,
   UseInterceptors,
   Logger,
   Inject,
-  Body,
 } from '@nestjs/common';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { HelperService } from 'src/helper/helper.service';
 import { UserServiceClientOptions } from 'src/user/user-svc.options';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Auth, Roles, GetUserId } from 'src/guards/rest-auth.guard';
+
+import { Auth } from 'src/guards/rest-auth.guard';
 
 @Controller('upload')
 export class UploadController {

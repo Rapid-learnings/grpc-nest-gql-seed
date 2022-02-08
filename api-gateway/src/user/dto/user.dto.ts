@@ -9,14 +9,11 @@ import {
   IsBoolean,
   IsOptional,
   IsInt,
-  IsEmpty,
-  isEmail,
   IsNumber,
   IsEnum,
 } from 'class-validator';
 import { Role } from 'src/guards/role.enum';
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { int } from 'aws-sdk/clients/datapipeline';
 
 @InputType()
 export class CreateUserDto {
