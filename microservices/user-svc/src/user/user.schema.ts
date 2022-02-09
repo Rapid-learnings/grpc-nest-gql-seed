@@ -1,18 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import * as mongoose from 'mongoose';
-import { UnauthorizedException, NotFoundException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { User } from './user.interface';
-import * as validator from 'validator';
-import { Role } from 'src/guards/role.enum';
-import { HttpStatus } from '@nestjs/common';
-import { ResponseHandlerService } from 'src/helper/response-handler.service';
+import * as mongoose from "mongoose";
+import { UnauthorizedException, NotFoundException } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { User } from "./user.interface";
+import * as validator from "validator";
+import { Role } from "src/guards/role.enum";
+import { HttpStatus } from "@nestjs/common";
+import { ResponseHandlerService } from "src/helper/response-handler.service";
+import * as grpc from "grpc";
+const GrpcStatus = grpc.status;
+
 const responseHandlerService = new ResponseHandlerService();
 export enum KycStatus {
-  Approved = 'approved',
-  Not_Applied = 'not_applied',
-  Rejected = 'rejected',
-  Under_Review = 'under_review',
+  Approved = "approved",
+  Not_Applied = "not_applied",
+  Rejected = "rejected",
+  Under_Review = "under_review",
 }
 export const UserSchema = new mongoose.Schema<User>(
   {
@@ -137,17 +140,17 @@ export const UserSchema = new mongoose.Schema<User>(
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-UserSchema.pre('save', function (next) {
+UserSchema.pre("save", function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
   if (!user.password) {
     next();
   }
   // Make sure not to rehash pwd if already hashed
-  if (!user.isModified('password')) return next();
+  if (!user.isModified("password")) return next();
 
   // Generate a salt and use it to hash the user
   bcrypt.genSalt(10, (err, salt) => {
@@ -172,9 +175,10 @@ UserSchema.methods.checkPassword = async function (attempt) {
     return isMatch;
   } catch (e) {
     await responseHandlerService.response(
-      'Unauthorized',
+      "Unauthorized",
       HttpStatus.UNAUTHORIZED,
-      null,
+      GrpcStatus.UNAUTHENTICATED,
+      null
     );
   }
 };

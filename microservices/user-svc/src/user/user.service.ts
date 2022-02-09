@@ -23,6 +23,9 @@ import { Role } from "../guards/role.enum";
 import { AdminServiceClientOptions } from "./svc.options";
 import { ClientGrpc, Client } from "@nestjs/microservices";
 import { InjectSentry, SentryService } from "@ntegral/nestjs-sentry";
+import * as grpc from "grpc";
+import { http } from "winston";
+const GrpcStatus = grpc.status;
 
 @Injectable()
 export class UserService {
@@ -112,6 +115,7 @@ export class UserService {
       await this.responseHandlerService.response(
         e,
         HttpStatus.UNAUTHORIZED,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -148,6 +152,7 @@ export class UserService {
         await this.responseHandlerService.response(
           "FORBIDDEN",
           HttpStatus.FORBIDDEN,
+          GrpcStatus.UNAUTHENTICATED,
           null
         );
       }
@@ -212,6 +217,7 @@ export class UserService {
       await this.responseHandlerService.response(
         e,
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -229,6 +235,7 @@ export class UserService {
       await this.responseHandlerService.response(
         e,
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -244,6 +251,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "account with this email already exists!",
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -293,6 +301,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "User Not Found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -305,6 +314,7 @@ export class UserService {
         await this.responseHandlerService.response(
           "your account is suspended, contact admin",
           HttpStatus.FORBIDDEN,
+          GrpcStatus.UNAUTHENTICATED,
           null
         );
       }
@@ -322,6 +332,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "Unauthorized",
         HttpStatus.UNAUTHORIZED,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -335,6 +346,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "User Not Found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -343,6 +355,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "email not verified",
         HttpStatus.FORBIDDEN,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -358,6 +371,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "User Not Found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -367,6 +381,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "No active otp found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -392,7 +407,12 @@ export class UserService {
       user.otp = null;
       await user.save();
     }
-    await this.responseHandlerService.response(verified.message, 406, null);
+    await this.responseHandlerService.response(
+      verified.message,
+      HttpStatus.NOT_ACCEPTABLE,
+      GrpcStatus.UNAUTHENTICATED,
+      null
+    );
   }
 
   // validate user via token
@@ -408,6 +428,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "Unauthorized",
         HttpStatus.UNAUTHORIZED,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -435,6 +456,7 @@ export class UserService {
         await this.responseHandlerService.response(
           "user with this email already exists",
           HttpStatus.NOT_ACCEPTABLE,
+          GrpcStatus.UNAUTHENTICATED,
           null
         );
       }
@@ -450,6 +472,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "User Not Found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -477,6 +500,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "No active OTP found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -501,7 +525,12 @@ export class UserService {
       await user.save();
     }
 
-    await this.responseHandlerService.response(verified.message, 406, null);
+    await this.responseHandlerService.response(
+      verified.message,
+      HttpStatus.NOT_ACCEPTABLE,
+      GrpcStatus.UNAUTHENTICATED,
+      null
+    );
   }
 
   // Forgot password otp
@@ -511,6 +540,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "User Not Found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -527,6 +557,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "User Not Found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -535,6 +566,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "No active OTP found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -557,7 +589,12 @@ export class UserService {
     if (verified.success) {
       verified.message += ", password reset successfully";
     }
-    await this.responseHandlerService.response(verified.message, 406, null);
+    await this.responseHandlerService.response(
+      verified.message,
+      HttpStatus.NOT_ACCEPTABLE,
+      GrpcStatus.UNAUTHENTICATED,
+      null
+    );
   }
 
   // reset pssword
@@ -569,6 +606,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "Incorrect Password",
         HttpStatus.UNAUTHORIZED,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -580,6 +618,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "Incorrect Password",
         HttpStatus.UNAUTHORIZED,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -610,6 +649,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "forbidden",
         HttpStatus.FORBIDDEN,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -629,7 +669,12 @@ export class UserService {
     } catch (error) {
       await this.sentryService.captureException(error); // sentry for logging
       console.log(error);
-      await this.responseHandlerService.response(error, 500, null);
+      await this.responseHandlerService.response(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        GrpcStatus.INTERNAL,
+        null
+      );
     }
   }
 
@@ -662,6 +707,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "unavailable",
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -678,6 +724,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "unavailable",
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -792,7 +839,12 @@ export class UserService {
         .limit(limit);
     } catch (e) {
       await this.sentryService.captureException(e);
-      await this.responseHandlerService.response(e, HttpStatus.NOT_FOUND, null);
+      await this.responseHandlerService.response(
+        e,
+        HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
+        null
+      );
     }
 
     // check if user exists
@@ -800,6 +852,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "no users found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -867,6 +920,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "kyc account already exists",
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }
@@ -906,6 +960,7 @@ export class UserService {
         await this.responseHandlerService.response(
           "user not found",
           HttpStatus.NOT_FOUND,
+          GrpcStatus.NOT_FOUND,
           null
         );
       }
@@ -940,6 +995,7 @@ export class UserService {
       await this.responseHandlerService.response(
         error,
         HttpStatus.BAD_REQUEST,
+        GrpcStatus.INVALID_ARGUMENT,
         null
       );
     }
@@ -1023,7 +1079,12 @@ export class UserService {
         .limit(limit);
     } catch (e) {
       await this.sentryService.captureException(e);
-      await this.responseHandlerService.response(e, HttpStatus.NOT_FOUND, null);
+      await this.responseHandlerService.response(
+        e,
+        HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
+        null
+      );
     }
 
     // check if user exists
@@ -1031,6 +1092,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "no users found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -1057,6 +1119,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "user not found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -1065,6 +1128,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "user not found",
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null
       );
     }
@@ -1092,6 +1156,7 @@ export class UserService {
       await this.responseHandlerService.response(
         "not enough amount in your wallet",
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null
       );
     }

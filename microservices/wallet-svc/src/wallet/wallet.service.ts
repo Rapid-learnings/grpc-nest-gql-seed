@@ -8,6 +8,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import { UserServiceClientOptions } from './svc.options';
+import * as grpc from 'grpc';
+const GrpcStatus = grpc.status;
 
 const paymentStatus = {
   PENDING: 'PENDING',
@@ -156,6 +158,7 @@ export class WalletService {
       await this.responseHandlerService.response(
         error,
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null,
       );
     }
@@ -222,6 +225,7 @@ export class WalletService {
       await this.responseHandlerService.response(
         e,
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null,
       );
     }
@@ -276,6 +280,7 @@ export class WalletService {
       await this.responseHandlerService.response(
         error,
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null,
       );
     }
@@ -299,6 +304,7 @@ export class WalletService {
       await this.responseHandlerService.response(
         error,
         HttpStatus.NOT_ACCEPTABLE,
+        GrpcStatus.UNAUTHENTICATED,
         null,
       );
     }
@@ -317,6 +323,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'transaction not found',
           HttpStatus.NOT_FOUND,
+          GrpcStatus.NOT_FOUND,
           null,
         );
       }
@@ -379,6 +386,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'stripe account not found',
           HttpStatus.NOT_FOUND,
+          GrpcStatus.UNAUTHENTICATED,
           null,
         );
       }
@@ -475,6 +483,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'transaction not found',
           HttpStatus.NOT_FOUND,
+          GrpcStatus.NOT_FOUND,
           null,
         );
       }
@@ -483,6 +492,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'transaction already confirmed',
           HttpStatus.NOT_ACCEPTABLE,
+          GrpcStatus.UNAUTHENTICATED,
           null,
         );
       }
@@ -513,6 +523,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'payment not completed',
           HttpStatus.NOT_ACCEPTABLE,
+          GrpcStatus.UNAUTHENTICATED,
           null,
         );
       }
@@ -529,6 +540,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'transaction not found',
           HttpStatus.NOT_FOUND,
+          GrpcStatus.NOT_FOUND,
           null,
         );
       }
@@ -538,6 +550,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'transaction already confirmed',
           HttpStatus.NOT_ACCEPTABLE,
+          GrpcStatus.UNAUTHENTICATED,
           null,
         );
       }
@@ -558,6 +571,7 @@ export class WalletService {
             await this.responseHandlerService.response(
               'payment not completed',
               HttpStatus.NOT_ACCEPTABLE,
+              GrpcStatus.UNAUTHENTICATED,
               null,
             );
           }
@@ -570,6 +584,7 @@ export class WalletService {
             await this.responseHandlerService.response(
               'payment not completed',
               HttpStatus.NOT_ACCEPTABLE,
+              GrpcStatus.UNAUTHENTICATED,
               null,
             );
           }
@@ -601,6 +616,7 @@ export class WalletService {
         await this.responseHandlerService.response(
           'payment not completed',
           HttpStatus.NOT_ACCEPTABLE,
+          GrpcStatus.UNAUTHENTICATED,
           null,
         );
       }
@@ -680,7 +696,12 @@ export class WalletService {
       await transactions;
     } catch (e) {
       await this.sentryService.captureException(e);
-      await this.responseHandlerService.response(e, HttpStatus.NOT_FOUND, null);
+      await this.responseHandlerService.response(
+        e,
+        HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
+        null,
+      );
     }
 
     // check is transaction exists
@@ -688,6 +709,7 @@ export class WalletService {
       await this.responseHandlerService.response(
         'no transactions found',
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null,
       );
     }
@@ -746,6 +768,7 @@ export class WalletService {
       await this.responseHandlerService.response(
         'revenueGeneratedFromFees not found',
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null,
       );
     }

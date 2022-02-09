@@ -12,6 +12,8 @@ import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 import { ClientGrpc, Client } from '@nestjs/microservices';
 
 import { UserServiceClientOptions } from './svc.options';
+import * as grpc from 'grpc';
+const GrpcStatus = grpc.status;
 
 @Injectable()
 export class AdminService implements OnModuleInit {
@@ -61,7 +63,12 @@ export class AdminService implements OnModuleInit {
     } catch (e) {
       await this.sentryService.captureException(e);
       const { error, statusCode } = e.response.data;
-      await this.responseHandlerService.response(error, statusCode, null);
+      await this.responseHandlerService.response(
+        error,
+        statusCode,
+        GrpcStatus.UNKNOWN,
+        null,
+      );
     }
     const users = response.data.data.users;
     const totalUsers = response.data.data.totalUsers;
@@ -70,6 +77,7 @@ export class AdminService implements OnModuleInit {
       await this.responseHandlerService.response(
         'users not found',
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null,
       );
     }
@@ -100,7 +108,12 @@ export class AdminService implements OnModuleInit {
     } catch (e) {
       await this.sentryService.captureException(e);
       const { error, statusCode } = e.response.data;
-      await this.responseHandlerService.response(error, statusCode, null);
+      await this.responseHandlerService.response(
+        error,
+        statusCode,
+        GrpcStatus.UNKNOWN,
+        null,
+      );
     }
     const user = response.data.data.user;
     const message = response.data.data.message;
@@ -109,6 +122,7 @@ export class AdminService implements OnModuleInit {
       await this.responseHandlerService.response(
         'users not found',
         HttpStatus.NOT_FOUND,
+        GrpcStatus.NOT_FOUND,
         null,
       );
     }

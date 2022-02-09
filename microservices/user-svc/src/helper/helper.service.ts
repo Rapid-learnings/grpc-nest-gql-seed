@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Injectable, HttpStatus, Req, Res } from '@nestjs/common';
-import { ResponseHandlerService } from './response-handler.service';
-import * as sgMail from '@sendgrid/mail';
+import { Injectable, HttpStatus, Req, Res } from "@nestjs/common";
+import { ResponseHandlerService } from "./response-handler.service";
+import * as sgMail from "@sendgrid/mail";
+import * as grpc from "grpc";
+const GrpcStatus = grpc.status;
+
 @Injectable()
 export class HelperService {
   constructor(private responseHandlerService: ResponseHandlerService) {
@@ -16,7 +19,7 @@ export class HelperService {
     try {
       const res = await sgMail.send({
         to: to,
-        from: 'nayanshrivastava800@gmail.com',
+        from: "nayanshrivastava800@gmail.com",
         subject,
         html,
         // attachments: [
@@ -52,7 +55,12 @@ export class HelperService {
       }
       return user;
     } catch (e) {
-      await this.responseHandlerService.response(e, 500, null);
+      await this.responseHandlerService.response(
+        e,
+        500,
+        GrpcStatus.INTERNAL,
+        null
+      );
     }
   }
   async generateOtp(forTask) {
@@ -64,16 +72,16 @@ export class HelperService {
   }
   async checkOtp(attemptOtp, userOtp) {
     const resObj = {
-      message: 'otp verified',
+      message: "otp verified",
       success: true,
     };
     const isExpired = await this.isOtpExpired(userOtp);
     if (isExpired) {
-      (resObj.message = 'otp has expired'), (resObj.success = false);
+      (resObj.message = "otp has expired"), (resObj.success = false);
     }
     const isMatch = userOtp.otp === attemptOtp;
     if (!isMatch) {
-      (resObj.message = 'incorrect otp'), (resObj.success = false);
+      (resObj.message = "incorrect otp"), (resObj.success = false);
     }
     return resObj;
   }

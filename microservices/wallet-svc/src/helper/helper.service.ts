@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Injectable, HttpStatus, Req, Res } from '@nestjs/common';
-
 import { ResponseHandlerService } from './response-handler.service';
+import * as grpc from 'grpc';
+const GrpcStatus = grpc.status;
 
 @Injectable()
 export class HelperService {
@@ -24,7 +25,12 @@ export class HelperService {
       }
       return user;
     } catch (e) {
-      await this.responseHandlerService.response(e, 500, null);
+      await this.responseHandlerService.response(
+        e,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        GrpcStatus.INTERNAL,
+        null,
+      );
     }
   }
 

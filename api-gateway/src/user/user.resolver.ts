@@ -90,6 +90,7 @@ export class UserResolver implements OnModuleInit {
         'error',
         `APT-GATEWAY - Login- for ${JSON.stringify(loginUserDto)} - ${e}`,
       );
+      console.log(e);
       e.details = JSON.parse(e.details);
       await this.responseHandlerService.response(
         e.details,
