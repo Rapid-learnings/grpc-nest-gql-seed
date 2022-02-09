@@ -87,8 +87,9 @@ export class UserController implements OnModuleInit {
   @Get('/register-captcha')
   async register(@Req() req): Promise<GeetestRegisterResultInterface> {
     this.logger.log('info', `APT-GATEWAY - register-captcha `);
-    const t = Date.now().toString();
-    const data = await this.geetestService.register({ t });
+    const data = await this.geetestService.register({
+      t: Date.now().toString(),
+    });
     return data;
   }
 

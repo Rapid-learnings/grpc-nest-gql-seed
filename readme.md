@@ -199,7 +199,7 @@ Scheduler microservice is an independent service. It is responsible for maintain
 | twoFactorAuth  |   boolean    |
 | role           |   string     |
 | status         |   string     |
-| socialDisord   |   string     |
+| socialDiscord   |   string     |
 | socialTelegram |   string     |
 | socialTwitter  |   string     |
 | socailInstagram|   string     |
@@ -222,22 +222,22 @@ Scheduler microservice is an independent service. It is responsible for maintain
 | :------------------------ | :------- | :----------------------------- | :------------                                           | :-------------   |
 | `login`                   | Mutation | to login a user                | emailorUsername: string, password: string               | User, refreshToken, Token, message, expiresIn   |
 | `listUsers`               | Query    | to fetch list of users         | userId: string, sortBy: string, sortOrder: number, limit: number, offset: number, status: string, isBlocked: boolean, mobile: string, username: string, email: string, name: string, isEmailVerfied: boolean, isProfileUpdated: boolean, twoFactorAuth: boolean, role: string, | totaluser:int, User[]  |
-| `updateUser`              | Mutation | to update user                 | isBlocked: boolean, first_name: string, last_name: string, email: string, username: string, socialTelegram: string, socialDisord: string, profileImageUrl: string, status: string | User, message: string      |
+| `updateUser`              | Mutation | to update user                 | isBlocked: boolean, first_name: string, last_name: string, email: string, username: string, socialTelegram: string, socialDiscord: string, profileImageUrl: string, status: string | User, message: string      |
 | `createUser`              | Mutation | to create users                | email: string, username: string, first_name: string, last_name: string, password: string |User, refreshToken, Token, message, expiresIn  |
 | `register-captcha`        | Mutation | to register captcha            | N/A   | message: captcha-registered created      |
 | `health`                  | Query    | to test functioning of specific api's | N/A |  message: string |
 | `findOneByEmailOrUsername`| Mutation | to fetch user via email or username | email: string, username: string | User |
-| `updateProfile`           | Mutation | to update profile of an user   | isBlocked: boolean, currentPassword: string, newPassword: string, first_name: string, last_name: string, username: string, socialTelegram: string, socialDisord: string, socialTwitter: string, socailInstagram: string, socailYoutube: string, socialTiktok: string, socialTwitch: string, mobile: string, twoFactorAuth: string, status: string| message: profile updated   |
+| `updateProfile`           | Mutation | to update profile of an user   | isBlocked: boolean, currentPassword: string, newPassword: string, first_name: string, last_name: string, username: string, socialTelegram: string, socialDiscord: string, socialTwitter: string, socailInstagram: string, socailYoutube: string, socialTiktok: string, socialTwitch: string, mobile: string, twoFactorAuth: string, status: string| message: profile updated   |
 
 #### GraphQl-API's
 | Name                       | Type       | Description                       | Payload         | Response           |
 | :------------------------- | :--------- | :-------------------------------  | :------         | :-------           |
 | `login`                    | Mutation   | to login a user                   | emailorUsername: string, password: string  | User, refreshToken, Token, message, expiresIn |
 | `listUsers`                | Query      | to fetch list of users            | userId: string, sortBy: string, sortOrder: number, limit: number, offset: number, status: string, isBlocked: boolean, mobile: string, username: string, email: string, name: string, isEmailVerfied: boolean, isProfileUpdated: boolean, twoFactorAuth: boolean, role: string, | totaluser: int, user [] |
-| `updateUser`    | Mutation   | to update user                    | isBlocked: boolean, first_name: string, last_name: string, email: string, username: string, socialTelegram: string, socialDisord: string, profileImageUrl: string, status: string | message: user updated      |
+| `updateUser`    | Mutation   | to update user                    | isBlocked: boolean, first_name: string, last_name: string, email: string, username: string, socialTelegram: string, socialDiscord: string, profileImageUrl: string, status: string | message: user updated      |
 | `createUser`               | Mutation   | to create users                   | email: string, username: string, first_name: string, last_name: string, password: string | User, refreshToken, Token, message, expiresIn    |
 | `uploadUserProfilePicture` | Mutation   | to upload user profile picture    | imageUrl: string| message: profile picture updated               |
-| `updateProfile`            | Mutation   | to update profile of an user      | isBlocked: boolean, currentPassword: string, newPassword: string, first_name: string, last_name: string, username: string, socialTelegram: string, socialDisord: string, socialTwitter: string, socailInstagram: string, socailYoutube: string, socialTiktok: string, socialTwitch: string, mobile: string, twoFactorAuth: string, status: string| message: profile updated   |
+| `updateProfile`            | Mutation   | to update profile of an user      | isBlocked: boolean, currentPassword: string, newPassword: string, first_name: string, last_name: string, username: string, socialTelegram: string, socialDiscord: string, socialTwitter: string, socailInstagram: string, socailYoutube: string, socialTiktok: string, socialTwitch: string, mobile: string, twoFactorAuth: string, status: string| message: profile updated   |
 | `getBalance`               | Query      | to fetch balance of an user       | N/A             | amount: float, assetCode: string   |
 | `getUserById`              | Query      | to fetch user by userId           | userId: string  | User           |
 | `getUsersByFilters`        | Query      | to fetch filtered users           | userId: string, sortBy: string, sortOrder: number, limit: number, offset: number, status: string, isBlocked: boolean, mobile: string, username: string, email: string, name: string, role: string | totalusers: int, Users[]  |
@@ -256,7 +256,7 @@ Scheduler microservice is an independent service. It is responsible for maintain
 | `sendEmailOtp`            | Query    | send otp to the email id       | email: string                                           |  forTask, message, expiresIn             |
 | `verifyEmailOtp`          | Mutation | to verify email via otp        | email: string, otp: string                              | User, Token, message, expiresIn             |
 | `forgotPasswordOtp`       | Mutation | sends otp to the email id      | email: string, otp: string, password: string            | forTask, message, expiresIn    |
-| `getLoggedInUser`         | Query    | to fetch logged in users       | first_name: string, last_name: string, email: string, username: string, password: string, isEmailVerfied: boolean, appleId: string, twoFactorAuth: boolean, role: string, status: string, socialDisord: string, socialTelegram: string, socialTwitter: string, socailInstagram: string, socailYoutube: string, socialTiktok: string, socialTwitch: string, mobile: string, profileImageUrl: string, _id: string, createdAt: string, updatedAt: string, isBlocked: boolean, stripe_account_id: string, kyc_status: string, kyc_applicant_id: string, | User  |
+| `getLoggedInUser`         | Query    | to fetch logged in users       | first_name: string, last_name: string, email: string, username: string, password: string, isEmailVerfied: boolean, appleId: string, twoFactorAuth: boolean, role: string, status: string, socialDiscord: string, socialTelegram: string, socialTwitter: string, socailInstagram: string, socailYoutube: string, socialTiktok: string, socialTwitch: string, mobile: string, profileImageUrl: string, _id: string, createdAt: string, updatedAt: string, isBlocked: boolean, stripe_account_id: string, kyc_status: string, kyc_applicant_id: string, | User  |
 | `resetPassword`           | Mutation | to reset password              | current password: string, new password: string          | message: string            |
 | `forgotPassword`          | Mutation | to reset password              | email: string, otp: string, password: string            | message: string          |
 | `checkEmail`              | Mutation | to verify the email            | userId: string, newEmail: string                        | message: string   |
