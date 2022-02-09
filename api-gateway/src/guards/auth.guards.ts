@@ -47,12 +47,6 @@ export class AuthGuard implements CanActivate {
     );
     if (req.headers && req.headers.authorization) {
       req.user = await this.validateToken(req.headers.authorization);
-      if (
-        ctx.getInfo().fieldName === 'listCollections' ||
-        ctx.getInfo().fieldName === 'listNFTs'
-      ) {
-        return true;
-      }
 
       if (!req.user) {
         await this.responseHandlerService.response(
@@ -67,13 +61,6 @@ export class AuthGuard implements CanActivate {
         return true;
       } else {
         return requiredRoles.includes(req.user.role);
-      }
-    } else {
-      if (
-        ctx.getInfo().fieldName === 'listCollections' ||
-        ctx.getInfo().fieldName === 'listNFTs'
-      ) {
-        return true;
       }
     }
 
