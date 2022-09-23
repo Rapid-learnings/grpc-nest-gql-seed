@@ -2,6 +2,10 @@ import { Injectable, NestMiddleware, Inject, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
+/**
+ * LoggerMiddleware add logs for each incoming request
+ * @category Core
+ */
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
   constructor(

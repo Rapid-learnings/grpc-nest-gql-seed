@@ -3,8 +3,14 @@ import {
   HealthCheckService,
   HttpHealthIndicator,
   HealthCheck,
+  HealthCheckResult,
 } from '@nestjs/terminus';
 
+/**
+ * HealthController is responsible for handling health check requests. It is used with @nestjs/terminus to check if the app is running or not.
+ * It creates a route - "/health"
+ * @category Core
+ */
 @Controller('health')
 export class HealthController {
   constructor(
@@ -12,9 +18,13 @@ export class HealthController {
     private http: HttpHealthIndicator,
   ) {}
 
+  /**
+   * Get API - "/" - performs  defined health checks and returns the result.
+   * @returns returns the result of each check in an array.
+   */
   @Get()
   @HealthCheck()
-  async check() {
+  async check(): Promise<HealthCheckResult> {
     try {
       return await this.health.check([
         () =>

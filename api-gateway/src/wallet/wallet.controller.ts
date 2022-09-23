@@ -23,9 +23,21 @@ import {
   stripeRefreshAccountLinkDef,
 } from './typeDef/resolver-type';
 
+/**
+ * WalletController is responsible for handling incoming requests specific to wallet microservice and returning responses to the client.
+ * It creates a route - "/wallet"
+ * @category Wallet
+ */
 @Controller('wallet')
 export class WalletController implements OnModuleInit {
   private coinbaseWebhook: any;
+
+  /**
+   *
+   * @param responseHandlerService
+   * @param logger logger instance from winston
+   * @param user2Service
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
@@ -34,11 +46,17 @@ export class WalletController implements OnModuleInit {
     this.coinbaseWebhook = coinbase.Webhook;
   }
 
+  /**
+   * gRPC client instance for wallet microservice
+   */
   @Client(WalletServiceClientOptions)
   private readonly WalletServiceClient: ClientGrpc;
 
   private walletService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.walletService =
       this.WalletServiceClient.getService<WalletServiceInterface>(
@@ -46,6 +64,14 @@ export class WalletController implements OnModuleInit {
       );
   }
 
+  /**
+   * Get API - "/stripe/refresh/:id" - creates new account link for stripe account of the given user and then redirects to that link.
+   * It calls stripeCreateAccountLinks on wallet microservice.
+   * @param userId user id
+   * @returns new account URL
+   * @throws NotFoundException - "user not found" - if user with this id is not found.
+   * @throws NotFoundException - "no connected stripe account found" - if the user account does not have any stripe account.
+   */
   @Get('stripe/refresh/:id')
   @Redirect()
   async stripeRefreshAccountLink(
@@ -62,7 +88,7 @@ export class WalletController implements OnModuleInit {
 
     if (!user.stripe_account_id) {
       await this.responseHandlerService.response(
-        { error: 'not connected stripe account found' },
+        { error: 'no connected stripe account found' },
         HttpStatus.NOT_FOUND,
         null,
       );
@@ -80,6 +106,12 @@ export class WalletController implements OnModuleInit {
     };
   }
 
+  /**
+   * Get API - "/health" - checks if the wallet service is running properly.
+   * It calls healthCheck on wallet microservice.
+   * @returns response message - "Wallet service is up and running!"
+   * @throws error received from wallet service in HTTP format.
+   */
   @Get('health')
   async health() {
     try {
@@ -98,6 +130,14 @@ export class WalletController implements OnModuleInit {
     }
   }
 
+  /**
+   * Post API - "/cbwebhook" - it is a webhook that is hit by coinbase for any event emitted regarding payments.
+   * It calls topUpWalletConfirm on wallet microservice.
+   * @param webhookDto request body sent by coinbase
+   * @param req HTTP request object.
+   * @returns message response - "transaction confirmed - success"
+   * @throws error received from wallet service in HTTP format.
+   */
   @Post('cbwebhook')
   async cbWebhook(
     @Body() webhookDto,

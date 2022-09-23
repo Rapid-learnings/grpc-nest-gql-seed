@@ -14,24 +14,44 @@ import { Admins, ListUsersDef, UpdateUserDef } from './typeDef/resolver-type';
 import { Role } from 'src/guards/role.enum';
 import { AdminServiceInterface } from 'src/_proto/interfaces/admin.interface';
 
+/**
+ * UserResolver is responsible for handling incoming graphQL requests specific to user microservice and returning responses to the client.
+ * @category Admin
+ */
 @Resolver((of) => Admins)
 export class AdminResolver implements OnModuleInit {
+  /**
+   * @param responseHandlerService
+   * @param logger winston logger instance.
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
+  /**
+   * gRPC client instance for admin microservice
+   */
   @Client(AdminServiceClientOptions)
   private readonly AdminServiceClient: ClientGrpc;
 
   private adminService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.adminService =
       this.AdminServiceClient.getService<AdminServiceInterface>('AdminService');
   }
 
-  // listuser --> list - admin.admin.ts -  admin-msc
+  /**
+   * Query - getUsersByFilters - used to fetch a list of users.
+   * It calls getUsersByFilters on admin microservice. Only admin and sub admin can access this API.
+   * @param listUsersDto filter options for users.
+   * @returns array of users and count of users.
+   * @throws error received from admin service in HTTP format.
+   */
   @Query((returns) => ListUsersDef, { name: 'Users' })
   @Roles(Role.Superadmin, Role.Subadmin)
   @Auth()
@@ -60,7 +80,15 @@ export class AdminResolver implements OnModuleInit {
     }
   }
 
-  // updateuser --> update - admin.admin.ts -  admin-msc
+  /**
+   * Mutation - updateUser - updates user profile information.
+   * It calls updateUser on admin microservice.
+   * It requires authentication. Only admin and sub admin can access this API.
+   * @param updateUserDto user details to be updated.
+   * @param user user information of logged in user.
+   * @returns message response.
+   * @throws error received from admin service in HTTP format.
+   */
   @Mutation((returns) => UpdateUserDef, { name: 'updateUser' })
   @Roles(Role.Superadmin, Role.Subadmin)
   @Auth()

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-empty-function */
-
 import { ClientGrpc, Client } from '@nestjs/microservices';
 import {
   Controller,
@@ -9,8 +6,6 @@ import {
   Post,
   Body,
   OnModuleInit,
-  NotFoundException,
-  Header,
   HttpStatus,
   UseGuards,
   Logger,
@@ -19,36 +14,22 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
-  CreateUserDto,
-  ForgotPasswordDto,
-  LoginUserDto,
-  ResetPasswordDto,
-  OtpDto,
-  TwoFactorOtpDto,
-  UpdateProfileDto,
-  CheckUsernameDto,
-  CheckEmailDto,
-  RefreshTokenDto,
-  KycApplicantDto,
-  KycVerificationDto,
-  UpdateUserDto,
-} from './dto/user.dto';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Role } from 'src/guards/role.enum';
-import { ResponseHandlerService } from 'src/helper/response-handler.service';
-import { UserServiceClientOptions } from './user-svc.options';
-import { AuthGuard } from '@nestjs/passport';
-import * as appleSignin from 'apple-signin-auth';
-import { join } from 'path';
-import { User2Service } from './userHelper.service';
-import {
   GeetestService,
   GeetestVerifyGuard,
   GeetestRegisterResultInterface,
 } from 'nestjs-geetest';
-import { Auth, Roles, GetUserId } from 'src/guards/rest-auth.guard';
-import { Onfido, Region, Applicant, OnfidoApiError } from '@onfido/api';
+import { Onfido, Region } from '@onfido/api';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { ResponseHandlerService } from 'src/helper/response-handler.service';
+import { UserServiceClientOptions } from './user-svc.options';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  KycVerificationDto,
+} from './dto/user.dto';
+import { User2Service } from './userHelper.service';
+import { Auth, GetUserId } from 'src/guards/rest-auth.guard';
 import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
 import {
   LoginUserDef,
@@ -57,10 +38,25 @@ import {
   UpdateUserDef,
 } from './typeDef/resolver-type';
 
+/**
+ * UserController is responsible for handling incoming requests specific to user microservice and returning responses to the client.
+ * It creates a route - "/user"
+ * @category User
+ */
 @Controller('user')
 export class UserController implements OnModuleInit {
+  /**
+   * onfido instance
+   */
   private onfido: any;
 
+  /**
+   *
+   * @param responseHandlerService
+   * @param logger instance of winston logger
+   * @param user2Service
+   * @param geetestService geetest captcha service from "nestjs-geetest"
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
@@ -74,18 +70,29 @@ export class UserController implements OnModuleInit {
     });
   }
 
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
 
   private userService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.userService =
       this.userServiceClient.getService<UserServiceInterface>('UserService');
   }
 
+  /**
+   * Get API - "/register-captcha" - registers a new geetest captcha which is required to be performed before login and signup.
+   * It calls register on geetest service.
+   * @returns new geetest captcha and challege code
+   */
   @Get('/register-captcha')
-  async register(@Req() req): Promise<GeetestRegisterResultInterface> {
+  async register(): Promise<GeetestRegisterResultInterface> {
     this.logger.log('info', `APT-GATEWAY - register-captcha `);
     const data = await this.geetestService.register({
       t: Date.now().toString(),
@@ -93,6 +100,14 @@ export class UserController implements OnModuleInit {
     return data;
   }
 
+  /**
+   * Post API - "/login" - it is used to login user account.
+   * It calls validateUserByPassword on user microservice.
+   * It requires Geetest captcha verification.
+   * @param loginUserDto login credentials of user.
+   * @returns user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('/login')
   @UseGuards(GeetestVerifyGuard)
   async login(@Body() loginUserDto: LoginUserDto): Promise<LoginUserDef> {
@@ -119,6 +134,14 @@ export class UserController implements OnModuleInit {
     }
   }
 
+  /**
+   * Post API - "/create" - it is for creating new user account.
+   * It calls create on user microservice.
+   * It requires Geetest captcha verification.
+   * @param createUserDto new user information.
+   * @returns new created user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('/create')
   @UseGuards(GeetestVerifyGuard)
   async create(@Body() createUserDto: CreateUserDto): Promise<CreateUserDto> {
@@ -143,6 +166,16 @@ export class UserController implements OnModuleInit {
     }
   }
 
+  /**
+   * Post API - "/kyc" - it is used for kyc verification for user account using Onfido kyc services.
+   * It calls kycCreateApplicant on user microservice.
+   * @param file kyc document file
+   * @param kycVerificationDto information of kyc document.
+   * @returns response message.
+   * @throws error received from user service in HTTP format.
+   * @throws NotAcceptableException - "you have reached maximum attempts" - if user has exceeded maximum attempts.
+   * @throws NotAcceptableException - "you must provide email, first_name and last_name" - if user has not set email, first name or last name as they are required for kyc verification on Onfido.
+   */
   @Post('/kyc')
   @Auth()
   @UseInterceptors(FileInterceptor('document'))
@@ -243,6 +276,12 @@ export class UserController implements OnModuleInit {
     }
   }
 
+  /**
+   * Post API - "/kyc-webhook" - it is a webhook hit by onfido upon verification of a kyc document. It sends the information whether the verification is approved or rejected.
+   * It calls findByKycIdAndUpdate on user microservice.
+   * @param webhookDto request body sent by onfido.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('/kyc-webhook')
   async kycVerificationWebhook(@Body() webhookDto) {
     this.logger.log(
@@ -273,6 +312,12 @@ export class UserController implements OnModuleInit {
     }
   }
 
+  /**
+   * Get API - "/health" - checks if the user service is running properly.
+   * It calls healthCheck on user microservice.
+   * @returns response message - "User service is up and running!"
+   * @throws error received from user service in HTTP format.
+   */
   @Get('health')
   async health() {
     this.logger.log(
@@ -301,6 +346,13 @@ export class UserController implements OnModuleInit {
     }
   }
 
+  /**
+   * Post API - "/findOneByEmailOrUsername" - returns the user with given email or username.
+   * It calls findOneByEmailOrUsername on user microservice.
+   * @param emailOrUsername username or email address of user.
+   * @returns the user with given email or username.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('findOneByEmailOrUsername')
   async findOneByEmailOrUsername(
     @Body('emailOrUsername') emailOrUsername,
@@ -315,6 +367,13 @@ export class UserController implements OnModuleInit {
     return data;
   }
 
+  /**
+   * returns the user with given appleId.
+   * It calls findOneByAppleId on user microservice.
+   * @param appleId appleId of user.
+   * @returns the user with given appleId.
+   * @throws error received from user service in HTTP format.
+   */
   async findOneByAppleId(appleId): Promise<Users> {
     const data = await this.userService
       .findOneByAppleId({ appleId })
@@ -322,11 +381,25 @@ export class UserController implements OnModuleInit {
     return data;
   }
 
+  /**
+   * returns the user with given appleId.
+   * It calls validateUserByJwt on user microservice.
+   * @param payload JWT payload.
+   * @returns new JWT token and expiration time.
+   * @throws error received from user service in HTTP format.
+   */
   async validateUserByJwt(payload) {
     const data = await this.userService.validateUserByJwt(payload).toPromise();
     return data;
   }
 
+  /**
+   * Post API - "/updateProfile" - updates user profile information..
+   * It calls updateProfile on user microservice.
+   * @param updateUserDto user details to be updated.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('updateProfile')
   async updateUser(@Body() updateUserDto): Promise<UpdateUserDef> {
     this.logger.log(

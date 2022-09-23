@@ -15,23 +15,42 @@ import { AdminServiceClientOptions } from './admin-svc.options';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
 import { AdminServiceInterface } from 'src/_proto/interfaces/admin.interface';
+
+/**
+ * AdminController is responsible for handling incoming requests specific to User and returning responses to the client.
+ * It creates a route - "/admin"
+ * @category Admin
+ */
 @Controller('admin')
 export class AdminController implements OnModuleInit {
+  /**
+   * @param responseHandlerService
+   * @param logger winston logger instance.
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
 
   private userService: any;
 
+  /**
+   * gRPC client instance for admin microservice
+   */
   @Client(AdminServiceClientOptions)
   private readonly AdminServiceClient: ClientGrpc;
 
   private adminService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.userService =
       this.userServiceClient.getService<UserServiceInterface>('UserService');
@@ -39,6 +58,13 @@ export class AdminController implements OnModuleInit {
       this.AdminServiceClient.getService<AdminServiceInterface>('AdminService');
   }
 
+  /**
+   * Post API - "/updateUser" - updates user profile information..
+   * It calls updateProfile on user microservice.
+   * @param updateUserDto user details to be updated.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('updateUser')
   async updateUser(@Body() updateUserDto: UpdateUserDto) {
     this.logger.log(
@@ -70,6 +96,14 @@ export class AdminController implements OnModuleInit {
     }
   }
 
+  /**
+  /**
+   * Post API - "/listUsers" - used to fetch a list of users.
+   * It calls getUsersByFilters on user microservice.
+   * @param listUsersDto filter options for users.
+   * @returns array of users and count of users.
+   * @throws error received from user service in HTTP format.
+   */
   @Post('listUsers')
   async listUsers(@Body() listUsersDto) {
     this.logger.log(
@@ -93,6 +127,12 @@ export class AdminController implements OnModuleInit {
     }
   }
 
+  /**
+   * Get API - "/health" - checks if the admin service is running properly.
+   * It calls healthCheck on admin microservice.
+   * @returns response message - "admin service is up and running!"
+   * @throws error received from admin service in HTTP format.
+   */
   @Get('health')
   async health() {
     this.logger.log(
