@@ -8,6 +8,16 @@ import { AdminModule } from './admin/admin.module';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { LogLevel } from '@sentry/types';
 
+/**
+ * It is the root module for the application in we import all feature modules and configure modules and packages that are common in feature modules. Here we also configure the middlewares.
+ *
+ * Here, feature modules imported are - AdminModule and HelperModule.
+ * other modules are :
+ *      ConfigModule - enables us to access environment variables application wide.
+ *      WinstonModule - It is used for maintaining logs in files.
+ *      SentryModule - It is used for maintaining error logs on sentry servers.
+ * @category Core
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({

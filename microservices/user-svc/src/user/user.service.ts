@@ -1,12 +1,6 @@
 /* eslint-disable no-var */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  Injectable,
-  HttpStatus,
-  ForbiddenException,
-  Logger,
-  Inject,
-} from "@nestjs/common";
+import { Injectable, HttpStatus, Logger, Inject } from "@nestjs/common";
 import { join } from "path";
 
 import { InjectModel } from "@nestjs/mongoose";
@@ -24,7 +18,7 @@ import { AdminServiceClientOptions } from "./svc.options";
 import { ClientGrpc, Client } from "@nestjs/microservices";
 import { InjectSentry, SentryService } from "@ntegral/nestjs-sentry";
 import * as grpc from "grpc";
-import { http } from "winston";
+
 const GrpcStatus = grpc.status;
 
 /**
