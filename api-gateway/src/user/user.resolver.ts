@@ -776,9 +776,8 @@ export class UserResolver implements OnModuleInit {
   /**
    * Query - getBalance - used to fetch a balance of logged in user.
    * It calls getBalance on user microservice.
-   * @param getUsersDto filter options for users.
    * @param user user information of logged in user.
-   * @returns array of users and count of users.
+   * @returns balance information.
    * @throws error received from user service in HTTP format.
    */
   @Query((returns) => GetBalanceDef, { name: 'getBalance' })

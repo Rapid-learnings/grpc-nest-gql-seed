@@ -6,15 +6,36 @@ import * as sgMail from "@sendgrid/mail";
 import * as grpc from "grpc";
 const GrpcStatus = grpc.status;
 
+/**
+ * This service contain contains all methods and business logic of helper functionalities for other modules.
+ * @category Helper
+ */
 @Injectable()
 export class HelperService {
+  /**
+   * @param responseHandlerService
+   */
   constructor(private responseHandlerService: ResponseHandlerService) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   }
+
+  /**
+   * it checks whether a username is valid.
+   * @param attempt username to be checked.
+   * @returns true if username is valid otherwise false.
+   */
   async isValidUsername(attempt) {
     const usernamePattern = /^[a-z0-9_\.]+$/;
     return usernamePattern.test(attempt);
   }
+
+  /**
+   * it sends a mail with given subject, text and html to the given email address.
+   * @param to user's email address.
+   * @param subject email subject.
+   * @param text text for email.
+   * @param html html part of email.
+   */
   async sendEmail(to, subject, text, html) {
     try {
       const res = await sgMail.send({
@@ -36,6 +57,12 @@ export class HelperService {
       console.log(e.response.body);
     }
   }
+
+  /**
+   * it returns serialized or unwanted user object removing sensitive information like password, otp, balance.
+   * @param user unserialized user object.
+   * @returns serialized user object.
+   */
   async serializeUser(user) {
     try {
       user = JSON.parse(JSON.stringify(user));
@@ -63,6 +90,12 @@ export class HelperService {
       );
     }
   }
+
+  /**
+   * it generates 6 digit OTP for given task.
+   * @param forTask the task for which OTP is required.
+   * @returns generated OTP and expiration time.
+   */
   async generateOtp(forTask) {
     const d = new Date();
     d.setMinutes(d.getMinutes() + 10);
@@ -70,6 +103,13 @@ export class HelperService {
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Always 6 digit numeric string
     return { otp, expiresOn, forTask };
   }
+
+  /**
+   * it verifies whether the OTP is valid.
+   * @param attemptOtp the OTP to be tested.
+   * @param userOtp the OTP stored in user object.
+   * @returns message and success response.
+   */
   async checkOtp(attemptOtp, userOtp) {
     const resObj = {
       message: "otp verified",
@@ -85,6 +125,12 @@ export class HelperService {
     }
     return resObj;
   }
+
+  /**
+   * it verifies whether the OTP is expired or not.
+   * @param otp the OTP to be tested.
+   * @returns true if OTP is expired.
+   */
   async isOtpExpired(otp) {
     const currentDate = new Date();
     return !(currentDate <= otp.expiresOn);

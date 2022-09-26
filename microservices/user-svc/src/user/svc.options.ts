@@ -1,12 +1,15 @@
-import { join } from 'path';
-import { ClientOptions, Transport } from '@nestjs/microservices';
+import { join } from "path";
+import { ClientOptions, Transport } from "@nestjs/microservices";
 
+/**
+ * configuration options for gRPC client for admin microservice.
+ */
 export const AdminServiceClientOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {
     url: `${process.env.ADMIN_SERVER_URL}:${process.env.ADMIN_MSC_PORT}`,
-    package: 'admins',
-    protoPath: join(__dirname, '../_proto/admin.proto'),
+    package: "admins",
+    protoPath: join(__dirname, "../_proto/admin.proto"),
     loader: {
       enums: String,
       objects: true,

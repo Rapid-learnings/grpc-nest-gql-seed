@@ -190,7 +190,7 @@ export class WalletResolver implements OnModuleInit {
    * It calls checkBalance on wallet microservice.
    * It requires authentication.
    * @param user user information of logged in user.
-   * @param checkBalanceDto currency options to check balance for asset code
+   * @param checkBalanceDto currency options to check balance for asset code.
    * @returns asset balance information.
    * @throws error received from wallet service in HTTP format.
    */

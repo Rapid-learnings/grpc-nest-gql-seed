@@ -382,11 +382,11 @@ export class UserController implements OnModuleInit {
   }
 
   /**
-   * returns the user with given appleId.
+   * valdates the given JWT payload and returns user object with new payload.
    * It calls validateUserByJwt on user microservice.
    * @param payload JWT payload.
    * @returns new JWT token and expiration time.
-   * @throws error received from user service in HTTP format.
+   * @throws error received from user service in HTTP format  with user object.
    */
   async validateUserByJwt(payload) {
     const data = await this.userService.validateUserByJwt(payload).toPromise();

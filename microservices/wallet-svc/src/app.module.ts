@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { LoggerMiddleware } from './logger.middleware';
 import { ConfigModule } from '@nestjs/config';
 // import { MongooseModule } from '@nestjs/mongoose';
 import { WinstonModule } from 'nest-winston';
@@ -10,6 +9,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { LogLevel } from '@sentry/types';
 
+/**
+ * It is the root module for the application in we import all feature modules and configure modules and packages that are common in feature modules. Here we also configure the middlewares.
+ *
+ * Here, feature modules imported are - Wallet and HelperModule.
+ * other modules are :
+ *      ConfigModule - enables us to access environment variables application wide.
+ *      MongooseModule - it is an ORM which enables easy access to mongoDB.
+ *      WinstonModule - It is used for maintaining logs in files.
+ *      SentryModule - It is used for maintaining error logs on sentry servers.
+ * @category Core
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({

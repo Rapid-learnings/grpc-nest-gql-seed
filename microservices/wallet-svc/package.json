@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typedoc": "typedoc --options typedoc.json"
   },
   "dependencies": {
     "@nestjs/axios": "0.0.2",
@@ -65,6 +66,8 @@
     "ts-loader": "^8.0.18",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
+    "typedoc": "^0.22.18",
+    "typedoc-plugin-merge-modules": "^4.0.1",
     "typescript": "^4.2.3"
   },
   "jest": {
