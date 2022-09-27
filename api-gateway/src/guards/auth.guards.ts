@@ -24,6 +24,9 @@ import { Reflector } from '@nestjs/core';
 
 export const ROLES_KEY = 'roles';
 
+/**
+ * Authentication Guard for validating incoming requests for protected GraphQL APIs to logged in user only.
+ */
 @Injectable()
 export class AuthGuard implements CanActivate {
   oauthClient: Auth2.OAuth2Client;
@@ -38,6 +41,11 @@ export class AuthGuard implements CanActivate {
     this.oauthClient = new google.auth.OAuth2(clientID, clientSecret);
   }
 
+  /**
+   * It checks whether the user is logged in or not and incoming request should be allowed further or not.
+   * @param context
+   * @returns true is user is logged in otherwise false.
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext();
@@ -67,6 +75,11 @@ export class AuthGuard implements CanActivate {
     return false;
   }
 
+  /**
+   * validates the JWt authentication token
+   * @param auth Authentication Header
+   * @returns logged in user.
+   */
   async validateToken(auth: string) {
     if (auth.split(' ')[0] !== 'Bearer') {
       await this.responseHandlerService.response(
@@ -131,6 +144,9 @@ export class AuthGuard implements CanActivate {
   }
 }
 
+/**
+ * Decorator to retrieve user from request object.
+ */
 export const GetUserId = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const ctx = GqlExecutionContext.create(context);
@@ -139,11 +155,19 @@ export const GetUserId = createParamDecorator(
   },
 );
 
+/**
+ * Decorator to apply Auth guard over APIs to be protected.
+ * @param roles
+ * @returns
+ */
 export function Auth(...roles: Role[]) {
   SetMetadata(ROLES_KEY, roles);
   return applyDecorators(UseGuards(AuthGuard));
 }
 
+/**
+ * Decorator to apply Role permission restrictions over APIs to be protected.
+ */
 export const Roles = (...roles: Role[]) => {
   return SetMetadata(ROLES_KEY, roles);
 };
