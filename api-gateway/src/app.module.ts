@@ -17,6 +17,20 @@ import { WalletModule } from './wallet/wallet.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SentryModule } from '@ntegral/nestjs-sentry';
 import { LogLevel } from '@sentry/types';
+
+/**
+ * It is the root module for the application in we import all feature modules and configure modules and packages that are common in feature modules. Here we also configure the middlewares.
+ *
+ * Here, feature modules imported are - UserModule, AdminModule, UploadModule, WalletModule.
+ * other modules are :
+ *      ConfigModule - enables us to access environment variables application wide.
+ *      TerminusModule - enables us perform health checks in our nest application.
+ *      MongooseModule - it is an ORM which enables easy access to mongoDB.
+ *      GraphQLModule - it setups the graphQL server to enable us to create graphql APIs. It also converts decorators and metadatas that we use for graphQl APIs, to generate the graphQL schema.
+ *      WinstonModule - It is used for maintaining logs in files.
+ *      SentryModule - It is used for maintaining error logs on sentry servers.
+ * @category Core
+ */
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.DB_URL),
@@ -68,17 +82,17 @@ import { LogLevel } from '@sentry/types';
         }),
       ],
     }),
-    UserModule,
-    AdminModule,
-    UploadModule,
-    TerminusModule,
-    WalletModule,
     SentryModule.forRoot({
       dsn: process.env.SENTRY_DSN,
       debug: true, //|| false,
       environment: 'dev', //| 'production' | 'some_environment',
       logLevel: LogLevel.Debug, //based on sentry.io loglevel //
     }),
+    TerminusModule,
+    UserModule,
+    AdminModule,
+    UploadModule,
+    WalletModule,
   ],
   providers: [GoogleStrategy],
   controllers: [AppController, HealthController],

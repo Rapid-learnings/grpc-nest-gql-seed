@@ -1,6 +1,10 @@
 import { join } from 'path';
 import { ClientOptions, Transport } from '@nestjs/microservices';
 
+/**
+ * configuration options for gRPC client for wallet microservice.
+ * @category Wallet
+ */
 export const WalletServiceClientOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {

@@ -21,9 +21,22 @@ const paymentStatus = {
 let stripe = null;
 import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 
+/**
+ * This service contain contains methods and business logic related to wallet.
+ * @category Wallet
+ */
 @Injectable()
 export class WalletService {
   private sentryService: any;
+
+  /**
+   *
+   * @param logger winston logger instance.
+   * @param paymentModel Mongoose model client.
+   * @param helperService
+   * @param responseHandlerService
+   * @param sentryClient sentry client.
+   */
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectModel('Payment') private paymentModel: Model<Payment>,
@@ -36,24 +49,37 @@ export class WalletService {
     stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
   }
 
-  // declaring client variables for gRPC client
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
 
   private userService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.userService = this.userServiceClient.getService<any>('UserService'); // creating grpc client for user service
   }
 
+  /**
+   * it returns a hello message.
+   * @param helloDto message string.
+   * @returns returns the hello message.
+   */
   async hello(helloDto) {
     return {
       message: 'HELLO! ' + helloDto.message,
     };
   }
 
-  //coinbase API Functions
-  // creating coinbase charge
+  /**
+   * creates charge by calling coinbase API.
+   * @param createChargeData information related to the charge.
+   * @returns information about created charge object.
+   */
   async charge(createChargeData: any) {
     const headers = {
       'X-CC-Api-Key': process.env.COINBASE_API_KEY,
@@ -87,6 +113,11 @@ export class WalletService {
     });
   }
 
+  /**
+   * stores the charge object in DB.
+   * @param chargeData charge object
+   * @returns the DB charge object.
+   */
   async createChargeinDB(chargeData) {
     this.logger.debug(
       `creating charge entry in DB - ${JSON.stringify(chargeData)}`,
@@ -106,7 +137,12 @@ export class WalletService {
     }
   }
 
-  // create charge
+  /**
+   * creates charge in coinbase that can be used to complete payment.
+   * @param createChargeDto information related to the payment.
+   * @returns information about created charge object.
+   * @throws UnauthorizedException in case user is not logged in.
+   */
   async createCharge(createChargeDto) {
     this.logger.debug(
       `create charge function called with data: ${JSON.stringify(
@@ -164,7 +200,13 @@ export class WalletService {
     }
   }
 
-  // Stripe account link
+  /**
+   * creates stripe account link to redirect the user to for onboarding process.
+   * @param stripeAccountId user stripe account id
+   * @param userId user id
+   * @param return_url stripe account return URL
+   * @returns new created stripe account links
+   */
   async stripeCreateAccountLinks(stripeAccountId, userId, return_url) {
     // creating URL to redirect the user to, for stripe onboarding process
     const accountLinks = await stripe.accountLinks.create({
@@ -176,7 +218,12 @@ export class WalletService {
     return accountLinks;
   }
 
-  // create stripe account if not already created
+  /**
+   * creates stripe account if not already created otherwise returns new stripe account links for existing account.
+   * @param user logged in user.
+   * @param stripe account return URL.
+   * @returns response message and stripe account link.
+   */
   async createStripeAccount({ user, return_url }) {
     try {
       let accountLinks: any = null;
@@ -231,7 +278,12 @@ export class WalletService {
     }
   }
 
-  // create payment intent for stripe
+  /**
+   * creates stripe payment intent for the logged in user.
+   * @param stripe_account_id the stripe account id of the user.
+   * @param amount payment amount for intent.
+   * @returns client_secret - unique id for the created payment intent.
+   */
   async createPaymentIntent({ stripe_account_id, amount }) {
     const paymentIntent = await stripe.paymentIntents.create({
       payment_method_types: ['card'],
@@ -246,14 +298,22 @@ export class WalletService {
     return paymentIntent;
   }
 
-  // health funtion
+  /**
+   * it is used for performing health check on this microservice.
+   * @param healthCheckDto any message string.
+   * @returns 'Wallet service is up and running!' response message.
+   */
   async healthCheck(healthCheckDto) {
     return {
       message: 'Wallet service is up and running!',
     };
   }
 
-  // return wallet balances for a user
+  /**
+   * it is used for checking user balance.
+   * @param checkBalanceDto currency options to check balance for asset code and userId.
+   * @returns wallet balances for a user
+   */
   async checkBalance(checkBalanceDto) {
     try {
       // fetching balance for user via userid and assigning balance if it doesn't exist
@@ -286,6 +346,12 @@ export class WalletService {
     }
   }
 
+  /**
+   * it is used for debit some amount of user balance.
+   * @param debitDto currency options and amount balance to debit.
+   * @returns asset balance information.
+   * @throws UnauthorizedException in case user is not logged in.
+   */
   async debit(debitDto) {
     // update Transaction in pending state
     try {
@@ -310,7 +376,12 @@ export class WalletService {
     }
   }
 
-  // create or update transaction
+  /**
+   * it creates a new transaction object or updates an existing one.
+   * @param transactionDto details of the transaction to be created or updated.
+   * @returns the new or updated transaction object and response message.
+   * @throws NotFoundException - "transaction not found" - in case transaction is not found.
+   */
   async createOrUpdateTransaction(transactionDto) {
     // fetching transaction using transaction id
     let transaction;
@@ -345,7 +416,12 @@ export class WalletService {
       return { transaction, message: 'transaction created' };
     }
   }
-  // function to convert Amount to Two Decimal Places
+
+  /**
+   * function to convert any number to Two Decimal Places.
+   * @param amount any number.
+   * @returns number with 2 decimal places.
+   */
   async convertAmountToTwoDecimalPlaces(amount) {
     amount = amount.toString();
     if (amount.indexOf('.') === -1) {
@@ -355,7 +431,12 @@ export class WalletService {
     }
   }
 
-  // top up wallet
+  /**
+   * it is used to add balance to the platform wallet by making a payment through coinbase or stripe.
+   * @param topUpWalletDto top up payment information like amount and userId.
+   * @returns client secret for stripe payment or charge information for coinbase charge created.
+   * @throws UnauthorizedException - "stripe account not found" - in case stripe account is not found for this user.
+   */
   async topUpWallet(topUpWalletDto) {
     const user = await this.userService
       .findOneById({
@@ -434,7 +515,12 @@ export class WalletService {
       };
     }
   }
-  // fetch coinbase charge object using ID
+
+  /**
+   * it fetches coinbase charge object using using chargeID.
+   * @param id id of coinbase charge.
+   * @returns retrieved charge object.
+   */
   async retrieveCharge(id) {
     const headers = {
       'X-CC-Api-Key': process.env.COINBASE_API_KEY,
@@ -460,7 +546,15 @@ export class WalletService {
     return res.data.data;
   }
 
-  // wallet top-up confirmation
+  /**
+   * It is used to confirm the payment once transaction is completed on the frontend.
+   *
+   * @param topUpWalletConfirmDto transaction information like id and hash and userId.
+   * @returns response message.
+   * @throws NotFoundException - "transaction not found" - in case transaction is not found.
+   * @throws NotAcceptableException - "transaction already confirmed" - in case transaction is already confirmed.
+   * @throws NotAcceptableException - "payment not completed" - in case transaction is not confirmed.
+   */
   async topUpWalletConfirm(topUpWalletConfirmDto) {
     if (topUpWalletConfirmDto.paymentMethod === 'STRIPE') {
       // fetch user
@@ -627,7 +721,13 @@ export class WalletService {
     }
   }
 
-  // list transactions
+  /**
+   * it is used to get list of all transactions for a user.
+   * It requires authentication.
+   * @param listTransactionsDto filter options for transactions and user information.
+   * @returns array of transactions and count of transactions.
+   * @throws NotFoundException - "transaction not found" - in case no transactions are found.
+   */
   async listTransactions(listTransactionsDto) {
     const matches: any = {};
     let projection: any = {};
@@ -730,6 +830,11 @@ export class WalletService {
   }
 
   // fetch user for using userId
+  /**
+   * it returns the user object of the given transaction.
+   * @param id transaction id.
+   * @returns user object
+   */
   async getUserPerTransaction(id) {
     try {
       return await this.userService
@@ -741,7 +846,10 @@ export class WalletService {
     }
   }
 
-  // calculate revenue generated from fees
+  /**
+   * calculates totalsum of fee amount from all completed transactions.
+   * @returns totalsum of fee amount from all completed transactions
+   */
   async calculateRevenueGeneratedFromFees() {
     try {
       // aggregation to find totalsum of fee amount from all completed transactions

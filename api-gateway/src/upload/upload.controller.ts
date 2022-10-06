@@ -19,23 +19,48 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 import { Auth } from 'src/guards/rest-auth.guard';
 
+/**
+ * UploadController is responsible for handling incoming requests specific to upload file functionalities.
+ * It creates a route - "/upload"
+ * @category Upload
+ */
 @Controller('upload')
 export class UploadController {
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
 
   private userService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.userService = this.userServiceClient.getService<any>('UserService');
   }
 
+  /**
+   * @param responseHandlerService
+   * @param helperService
+   * @param logger winston logger instance
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     private helperService: HelperService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
+  /**
+   * Post API - "/image" - it uploads the given image to AWS s3 bucket and returns the URL of the file.
+   * it requires authentication.
+   * @param file file to be uploaded to AWS S3
+   * @param req HTTP request object.
+   * @returns S3 URL to the image and message response.
+   * @throws BadRequestException - "please send file" - if file is not sent.
+   * @throws BadRequestException - "only files with extension - .jpeg, .png and .jpg are allowed" - if file is not image file.
+   */
   @Post('image')
   @Auth()
   @UseInterceptors(FileInterceptor('image'))

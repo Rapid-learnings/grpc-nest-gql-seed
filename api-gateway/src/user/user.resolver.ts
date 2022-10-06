@@ -1,22 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { ClientGrpc, Client } from '@nestjs/microservices';
-import {
-  OnModuleInit,
-  NotFoundException,
-  Header,
-  HttpStatus,
-  UseGuards,
-  Logger,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { OnModuleInit, HttpStatus, Logger, Inject } from '@nestjs/common';
 import {
   CreateUserDto,
   ForgotPasswordDto,
   LoginUserDto,
   ResetPasswordDto,
-  OtpDto,
   TwoFactorOtpDto,
   UpdateProfileDto,
   CheckUsernameDto,
@@ -26,19 +14,16 @@ import {
   AppleLoginDto,
   SendEmailotpDto,
   UploadProfilePictureDto,
-  UpdateUserDto,
   GetUsersDto,
   GetUserByIdDto,
 } from './dto/user.dto';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { Role } from 'src/guards/role.enum';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
 import { UserServiceClientOptions } from './user-svc.options';
-import { AuthGuard } from '@nestjs/passport';
 import * as appleSignin from 'apple-signin-auth';
 import { join } from 'path';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { Auth, Roles, GetUserId } from 'src/guards/auth.guards';
+import { Auth, GetUserId } from 'src/guards/auth.guards';
 import {
   LoginUserDef,
   Users,
@@ -51,29 +36,48 @@ import {
 } from './typeDef/resolver-type';
 import { ListUsersDef } from 'src/admin/typeDef/resolver-type';
 import { HelperService } from 'src/helper/helper.service';
-import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import { GraphQLScalarType, GraphQLError } from 'graphql';
 import { UserServiceInterface } from 'src/_proto/interfaces/user.interface';
 
+/**
+ * UserResolver is responsible for handling incoming graphQL requests specific to user microservice and returning responses to the client.
+ * @category User
+ */
 @Resolver((of) => Users)
 export class UserResolver implements OnModuleInit {
+  /**
+   * @param responseHandlerService
+   * @param logger winston logger instance.
+   * @param helperService
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private helperService: HelperService,
   ) {}
 
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
 
   private userService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.userService =
       this.userServiceClient.getService<UserServiceInterface>('UserService');
   }
 
-  // Login
+  /**
+   * Mutation - login - it is used to login user account.
+   * It calls validateUserByPassword on user microservice.
+   * @param loginUserDto login credentials of user.
+   * @returns user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => LoginUserDef, { name: 'login' })
   async login(@Args('input') loginUserDto: LoginUserDto) {
     try {
@@ -100,7 +104,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // createuser --> create - user.user.ts - user-msc
+  /**
+   * Mutation - createUser - it is for creating new user account.
+   * It calls create on user microservice.
+   * @param createUserDto new user information.
+   * @returns new created user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => LoginUserDef, { name: 'createUser' })
   async create(@Args('input') createUserDto: CreateUserDto) {
     this.logger.log(
@@ -124,7 +134,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // send otp
+  /**
+   * Query - twoFactorOtp - sends one time password to user's email address for 2 factor authentication.
+   * It calls twoFactorOtp on user microservice.
+   * @param email address of user.
+   * @returns message and expiration time for OTP.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => SendOtpDef, { name: 'twoFactorOtp' })
   async twoFactorOtp(@Args('input') { email }: TwoFactorOtpDto) {
     try {
@@ -145,7 +161,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // two factor auth
+  /**
+   * Mutation - twoFactorVerify - used to verify the OTP sent to user's email address for 2 factor authentication.
+   * It calls twoFactorVerify on user microservice.
+   * @param twoFactorOtpDto email address of user and OTP.
+   * @returns user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => LoginUserDef, { name: 'twoFactorVerify' })
   async twoFactorVerify(@Args('input') twoFactorOtpDto: TwoFactorOtpDto) {
     try {
@@ -175,7 +197,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // google login
+  /**
+   * Mutation - googleLogin - used to login into user account using google authentication. It returns the user if already exists otherwise creates a new user using user information from google.
+   * It calls googleLogin on user microservice.
+   * @param gUser user information from google auth.
+   * @returns user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => LoginUserDef, { name: 'googleLogin' })
   async googleAuthRedirect(@Args('input') gUser: GoogleLoginDto) {
     try {
@@ -199,7 +227,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  //user/apple-redirect
+  /**
+   * Mutation - appleLogin - used to login into user account using apple authentication. It returns the user if already exists otherwise creates a new user using user information fetched from apple.
+   * It calls appleLogin on user microservice.
+   * @param appleLoginDto code and id_token from apple for authentication.
+   * @returns user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => LoginUserDef, { name: 'appleLogin' })
   async appleLogin(@Args('input') appleLoginDto: AppleLoginDto) {
     try {
@@ -231,7 +265,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // refresh token
+  /**
+   * Mutation - appleRefreshToken - used to get a new authentication token using the refresh token for apple authentication.
+   * It performs the calls to apple auth servers.
+   * @param refreshTokenDto refresh token.
+   * @returns new authentication and refresh token information.
+   * @throws BadRequestException - "invalid refresh token" - if refresh token is invalid.
+   */
   @Mutation((returns) => RefreshTokenDef, { name: 'appleRefreshToken' })
   async appleRefreshToken(@Args('input') refreshTokenDto: RefreshTokenDto) {
     try {
@@ -285,7 +325,16 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // uploadprofilepicture --> update - user.user.ts - user-msc
+  /**
+   * Mutation - uploadUserProfilePicture - It stores the profile picture URL for a user.
+   * It calls uploadProfilePicture on user microservice.
+   * It requires authentication.
+   * @param profileImageUrl  URL of the profile picture.
+   * @param user user information of logged in user.
+   * @returns message response.
+   * @throws BadRequestException - "please send file" - if no profile image URL is sent.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => UploadProfilePictureDef, {
     name: 'uploadUserProfilePicture',
   })
@@ -337,7 +386,15 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // send otp
+  /**
+   * Query - sendEmailOtp - send OTP on email for email verification.
+   * It calls sendEmailOtp on user microservice.
+   * It requires authentication.
+   * @param email  email address of user.
+   * @param user user information of logged in user.
+   * @returns message response and OTP expiration time.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => SendOtpDef, { name: 'sendEmailOtp' })
   @Auth()
   async sendEmailOtp(
@@ -369,7 +426,15 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // verify email
+  /**
+   * Mutation - verifyEmailOtp - verify the OTP sent on email for email verification.
+   * It calls verifyEmailOtp on user microservice.
+   * It requires authentication.
+   * @param otpDto  email address of user and OTP.
+   * @param user user information of logged in user.
+   * @returns user and authentication token information.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => VerifyEmailResponseDef, { name: 'verifyEmailOtp' })
   @Auth()
   async verifyEmailOtp(
@@ -407,7 +472,14 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // otp for forgot password
+  /**
+   * Query - forgotPasswordOtp - send OTP on email for password resetting.
+   * It calls forgotPasswordOtp on user microservice.
+   * It requires authentication.
+   * @param email  email address of user.
+   * @returns message response and OTP expiration time.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => SendOtpDef, { name: 'forgotPasswordOtp' })
   async forgotPasswordOtp(@Args('input') { email }: SendEmailotpDto) {
     try {
@@ -433,7 +505,12 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // fetch logged in user
+  /**
+   * Query - getLoggedInUser - returns the logged in user object.
+   * It requires authentication.
+   * @param user user information of logged in user.
+   * @returns User object.
+   */
   @Query((returns) => Users, { name: 'getLoggedInUser' })
   @Auth()
   async getLoggedInUser(@GetUserId() user) {
@@ -459,7 +536,15 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // reset password
+  /**
+   * Mutation - resetPassword - it is used to reset password using current password.
+   * It calls resetPassword on user microservice.
+   * It requires authentication.
+   * @param resetPasswordDto  current and new password.
+   * @param user user information of logged in user.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => MessageDef, { name: 'resetPassword' })
   @Auth()
   async resetPassword(
@@ -497,7 +582,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // forgot password
+  /**
+   * Mutation - forgotPassword - it is used to verify the OTP for forget password and reset the user's password.
+   * It calls forgotPasswordVerify on user microservice.
+   * @param forgotPasswordDto  email, OTP and the new password.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => MessageDef, { name: 'forgotPassword' })
   async forgotPassword(@Args('input') forgotPasswordDto: ForgotPasswordDto) {
     try {
@@ -527,7 +618,15 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // updateProfile --> update - user.user.ts - user-msc
+  /**
+   * Mutation - updateProfile - updates user profile information.
+   * It calls updateProfile on user microservice.
+   * It requires authentication.
+   * @param updateProfileDto user details to be updated.
+   * @param user user information of logged in user.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Mutation((returns) => MessageDef, { name: 'updateProfile' })
   @Auth()
   async updateProfile(
@@ -568,7 +667,14 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // check email
+  /**
+   * Query - checkEmail - used to check if the email address is unique .
+   * It calls checkEmail on user microservice.
+   * It requires authentication.
+   * @param checkEmailDto user id and new email to be updated.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => MessageDef, { name: 'checkEmail' })
   @Auth()
   async checkEmail(@Args('input') checkEmailDto: CheckEmailDto) {
@@ -596,7 +702,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // check username
+  /**
+   * Query - checkUsername - used to check if the user name is unique .
+   * It calls checkUsername on user microservice.
+   * @param checkUsernameDto user name to be checked.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => MessageDef, { name: 'checkUsername' })
   async checkUsername(@Args('input') checkUsernameDto: CheckUsernameDto) {
     try {
@@ -626,7 +738,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // fetchfilteredusers --> fetch - user.user.ts - user-msc
+  /**
+   * Query - getUsersByFilters - used to fetch a list of users.
+   * It calls getUsersByFilters on user microservice.
+   * @param getUsersDto filter options for users.
+   * @returns array of users and count of users.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => ListUsersDef, { name: 'getUsersByFilters' })
   async getUsersByFilters(@Args('input') getUsersDto: GetUsersDto) {
     try {
@@ -655,7 +773,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // getbalance --> get - user.user.ts - user-msc
+  /**
+   * Query - getBalance - used to fetch a balance of logged in user.
+   * It calls getBalance on user microservice.
+   * @param user user information of logged in user.
+   * @returns balance information.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => GetBalanceDef, { name: 'getBalance' })
   @Auth()
   async getBalance(@GetUserId() user) {
@@ -683,7 +807,13 @@ export class UserResolver implements OnModuleInit {
     }
   }
 
-  // fetchuserbyid --> fetch - user.user.ts - user-msc
+  /**
+   * Query - getUserById - used to fetch a user by id.
+   * It calls getUserById on user microservice.
+   * @param getUserByIdDto user id.
+   * @returns user object.
+   * @throws error received from user service in HTTP format.
+   */
   @Query((returns) => Users, { name: 'getUserById' })
   async getUserById(@Args('input') getUserByIdDto: GetUserByIdDto) {
     try {

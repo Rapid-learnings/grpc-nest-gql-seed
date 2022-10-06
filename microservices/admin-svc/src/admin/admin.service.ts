@@ -15,9 +15,20 @@ import { UserServiceClientOptions } from './svc.options';
 import * as grpc from 'grpc';
 const GrpcStatus = grpc.status;
 
+/**
+ * This service contain contains methods and business logic related to admin.
+ * @category Admin
+ */
 @Injectable()
 export class AdminService implements OnModuleInit {
   private sentryService: any;
+
+  /**
+   * @param logger winston logger instance.
+   * @param helperService
+   * @param responseHandlerService
+   * @param sentryClient sentry client.
+   */
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly responseHandlerService: ResponseHandlerService,
@@ -27,17 +38,27 @@ export class AdminService implements OnModuleInit {
     this.sentryService = sentryClient.instance();
   }
 
-  // declaring client variables for gRPC client
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(UserServiceClientOptions)
   private readonly userServiceClient: ClientGrpc;
 
   private userService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.userService = this.userServiceClient.getService<any>('UserService'); // creating grpc client for user service
   }
 
-  // list all users
+  /**
+   * used to fetch a list of users.
+   * @param listUsersDto filter options for users.
+   * @returns array of users and count of users.
+   * @throws NotFoundException - "users not found" - in case user is not found.
+   */
   async listUsers(listUsersDto) {
     let response = null;
     try {
@@ -87,7 +108,12 @@ export class AdminService implements OnModuleInit {
     };
   }
 
-  // update user
+  /**
+   * updates user profile information..
+   * @param updateUserDto user details to be updated.
+   * @returns message response.
+   * @throws NotFoundException - "users not found" - in case user is not found.
+   */
   async updateUser(updateUserDto) {
     let response = null;
     try {
@@ -132,7 +158,10 @@ export class AdminService implements OnModuleInit {
     };
   }
 
-  // health function
+  /**
+   * checks if the admin service is running properly.
+   * @returns response message - "Admin service is up and running!"
+   */
   async healthCheck(healthCheckDto) {
     return {
       message: 'Admin service is up and running!',

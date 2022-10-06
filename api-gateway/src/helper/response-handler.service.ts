@@ -1,7 +1,19 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+
+/**
+ * This service contain contains business logic for error handling and response handling.
+ * @category Helper
+ */
 @Injectable()
 export class ResponseHandlerService {
   constructor() {}
+  /**
+   * it formats errors/results into a standard format
+   * @param error error object or error message
+   * @param statusCode Http response status code
+   * @param data response data
+   * @returns formatter response data
+   */
   async response(error, statusCode, data) {
     const response = {};
     if (error) {

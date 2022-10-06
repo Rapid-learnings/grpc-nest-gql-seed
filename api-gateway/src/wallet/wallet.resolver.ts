@@ -29,18 +29,31 @@ import {
 } from './typeDef/resolver-type';
 import { WalletServiceInterface } from 'src/_proto/interfaces/wallet.interface';
 
+/**
+ * WalletResolver is responsible for handling incoming graphQL requests specific to wallet microservice and returning responses to the client.
+ * @category Wallet
+ */
 @Resolver((of) => Wallets)
 export class WalletResolver implements OnModuleInit {
+  /**
+   * @param responseHandlerService
+   * @param logger logger instance from winston
+   */
   constructor(
     private responseHandlerService: ResponseHandlerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
-
+  /**
+   * gRPC client instance for user microservice
+   */
   @Client(WalletServiceClientOptions)
   private readonly WalletServiceClient: ClientGrpc;
 
   private walletService: any;
 
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     this.walletService =
       this.WalletServiceClient.getService<WalletServiceInterface>(
@@ -48,7 +61,13 @@ export class WalletResolver implements OnModuleInit {
       );
   }
 
-  // createCharge --> create - wallet.wallet.ts - wallet-msc
+  /**
+   * Mutation - createCharge - creates charge in coinbase that can be used to complete payment.
+   * It calls createCharge on wallet microservice.
+   * @param createChargeDto information related to the payment.
+   * @returns information about created charge object.
+   * @throws error received from wallet service in HTTP format.
+   */
   @Mutation((returns) => createchargeDef, { name: 'createCharge' })
   async createCharge(@Args('input') createChargeDto: createchargeDto) {
     try {
@@ -73,7 +92,15 @@ export class WalletResolver implements OnModuleInit {
     }
   }
 
-  // createStripeAccount --> create - wallet.wallet.ts - wallet-msc
+  /**
+   * Mutation - createStripeAccount - creates account link for creating the new stripe account for given user.
+   * It calls createStripeAccount on wallet microservice.
+   * It requires authentication.
+   * @param user user information of logged in user.
+   * @param createStripeAccountDto stripe account return URL.
+   * @returns account onboarding URL and message response.
+   * @throws error received from wallet service in HTTP format.
+   */
   @Mutation((returns) => createStripeAccountDef, {
     name: 'createStripeAccount',
   })
@@ -107,7 +134,16 @@ export class WalletResolver implements OnModuleInit {
     }
   }
 
-  // createPaymentIntent --> create - wallet.wallet.ts - wallet-msc
+  /**
+   * Mutation - createPaymentIntent - creates stripe payment intent for the logged in user.
+   * It calls createPaymentIntent on wallet microservice.
+   * It requires authentication.
+   * @param user user information of logged in user.
+   * @param createPaymentIntentDto payment information like amount.
+   * @returns client_secret - unique id for the created payment intent.
+   * @throws error received from wallet service in HTTP format.
+   * @throws NotFoundException - "stripe account not found" - if the user account does not have any stripe account.
+   */
   @Mutation((returns) => CreatePaymentIntentDef, {
     name: 'createPaymentIntent',
   })
@@ -149,7 +185,15 @@ export class WalletResolver implements OnModuleInit {
     }
   }
 
-  // checkBalance --> check - wallet.wallet.ts - wallet-msc
+  /**
+   * Query - checkBalance - it is used for checking user balance.
+   * It calls checkBalance on wallet microservice.
+   * It requires authentication.
+   * @param user user information of logged in user.
+   * @param checkBalanceDto currency options to check balance for asset code.
+   * @returns asset balance information.
+   * @throws error received from wallet service in HTTP format.
+   */
   @Query((returns) => CheckBalanceDef, {
     name: 'checkBalance',
   })
@@ -184,7 +228,15 @@ export class WalletResolver implements OnModuleInit {
     }
   }
 
-  // topUpWallet --> topup - wallet.wallet.ts -  wallet-msc
+  /**
+   * Mutation - topUpWallet - it is used to add balance to the platform wallet by making a payment through coinbase or stripe.
+   * It calls topUpWallet on wallet microservice.
+   * It requires authentication.
+   * @param user user information of logged in user.
+   * @param topUpWalletDto top up payment information like amount.
+   * @returns client secret for stripe payment or charge information for coinbase charge created.
+   * @throws error received from wallet service in HTTP format.
+   */
   @Mutation((returns) => TopUpWalletDef, {
     name: 'topUpWallet',
   })
@@ -220,7 +272,15 @@ export class WalletResolver implements OnModuleInit {
     }
   }
 
-  // topupConfirmation --> topUp - wallet.wallet.ts - wallet-msc
+  /**
+   * Mutation - topUpWalletConfirm - It is used to confirm the payment once transaction is completed on the frontend.
+   * It calls topUpWalletConfirm on wallet microservice.
+   * It requires authentication.
+   * @param topUpWalletConfirmDto transaction information like id and hash.
+   * @param user user information of logged in user.
+   * @returns response message.
+   * @throws error received from wallet service in HTTP format.
+   */
   @Mutation((returns) => TopUpWalletConfirmDef, {
     name: 'topUpWalletConfirm',
   })
@@ -259,7 +319,15 @@ export class WalletResolver implements OnModuleInit {
     }
   }
 
-  // listtransaction --> list - wallet.wallet.ts - wallet-msc
+  /**
+   * Mutation - listTransactions - it is used to get list of all transactions for a user.
+   * It calls topUpWalletConfirm on wallet microservice.
+   * It requires authentication.
+   * @param user user information of logged in user.
+   * @param listTransactionsDto filter options for transactions.
+   * @returns array of transactions and count of transactions.
+   * @throws error received from wallet service in HTTP format.
+   */
   @Query((returns) => ListTransactionsDef, { name: 'listTransactions' })
   @Auth()
   async listTransactions(

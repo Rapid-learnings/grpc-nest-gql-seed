@@ -1,12 +1,6 @@
 /* eslint-disable no-var */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  Injectable,
-  HttpStatus,
-  ForbiddenException,
-  Logger,
-  Inject,
-} from "@nestjs/common";
+import { Injectable, HttpStatus, Logger, Inject } from "@nestjs/common";
 import { join } from "path";
 
 import { InjectModel } from "@nestjs/mongoose";
@@ -24,13 +18,26 @@ import { AdminServiceClientOptions } from "./svc.options";
 import { ClientGrpc, Client } from "@nestjs/microservices";
 import { InjectSentry, SentryService } from "@ntegral/nestjs-sentry";
 import * as grpc from "grpc";
-import { http } from "winston";
+
 const GrpcStatus = grpc.status;
 
+/**
+ * This service contain contains methods and business logic related to user.
+ * @category User
+ */
 @Injectable()
 export class UserService {
   private onfido: any;
   private sentryService: any;
+
+  /**
+   * @param logger winston logger instance.
+   * @param userModel Mongoose model client.
+   * @param helperService
+   * @param responseHandlerService
+   * @param jwtService service from @nestjs/jwt.
+   * @param sentryClient sentry client.
+   */
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     @InjectModel("User") private userModel: Model<User>,
@@ -47,16 +54,28 @@ export class UserService {
     });
   }
 
-  // declaring client variables for gRPC client
+  /**
+   * gRPC client instance for admin microservice
+   */
   @Client(AdminServiceClientOptions)
   private readonly adminServiceClient: ClientGrpc;
 
   private adminService: any;
+
+  /**
+   * it is called once this module has been initialized. Here we create instances of our microservices.
+   */
   onModuleInit() {
     // Injecting the gRPC clients in this service
     this.adminService = this.adminServiceClient.getService<any>("AdminService");
   }
-  //GOOGLE SIGNIN
+
+  /**
+   * Method Handler for "googleLogin" method of UserService in user.proto.
+   * used to login into user account using google authentication. It returns the user if already exists otherwise creates a new user using user information from google.
+   * @param gUser user information from google auth.
+   * @returns user and authentication token information.
+   */
   async googleLogin(gUser: any) {
     try {
       // check if user is using gmail or not
@@ -121,7 +140,12 @@ export class UserService {
     }
   }
 
-  // Apple Login
+  /**
+   * used to login into user account using apple authentication. It returns the user if already exists otherwise creates a new user using user information fetched from apple.
+   * @param payload code and id_token from apple for authentication.
+   * @returns user and authentication token information.
+   * @throws ForbiddenException - "FORBIDDEN" - if token is invalid.
+   */
   public async appleLogin(payload: any): Promise<any> {
     try {
       const key_name = join(
@@ -223,7 +247,12 @@ export class UserService {
     }
   }
 
-  //CREATE USER
+  /**
+   * it is used for creating a new user in User DB.
+   * @param createUserDto new user information.
+   * @returns new created user.
+   * @throws NotAcceptableException.
+   */
   async create(createUserDto): Promise<User> {
     try {
       // fetching global variables from platformConstant
@@ -241,7 +270,12 @@ export class UserService {
     }
   }
 
-  // SignUp
+  /**
+   * it is used for signing up a new user.
+   * @param createUserDto new user information.
+   * @returns new created user and authentication token information.
+   * @throws NotAcceptableException - "account with this email already exists!" - if account with given email already exists.
+   */
   async signup(createUserDto) {
     createUserDto.email = createUserDto.email.toLowerCase();
     // fetching user via email
@@ -267,22 +301,38 @@ export class UserService {
     };
   }
 
-  // Find user by email
+  /**
+   * finds the user with given email.
+   * @param email email of user.
+   * @returns the user with given email.
+   */
   async findOneByEmail(email) {
     return await this.userModel.findOne({ email: email });
   }
 
-  // Find user by id
+  /**
+   * finds the user with given id.
+   * @param id id of user.
+   * @returns the user with given id.
+   */
   async findOneById(id) {
     return await this.userModel.findOne({ _id: id });
   }
 
-  // Find user by appleid
+  /**
+   * returns the user with given appleId.
+   * @param appleId appleId of user.
+   * @returns the user with given appleId.
+   */
   async findOneByAppleId(appleId) {
     return await this.userModel.findOne({ appleId });
   }
 
-  // Find user by email or username
+  /**
+   * finds the user with given email or username.
+   * @param attempt username or email address of user.
+   * @returns the user with given email or username.
+   */
   async findOneByEmailOrUsername(attempt) {
     if (await this.helperService.isValidUsername(attempt)) {
       return await this.userModel.findOne({ username: attempt });
@@ -291,7 +341,13 @@ export class UserService {
     }
   }
 
-  // validate user by password
+  /**
+   * it is used to login user account.
+   * @param loginAttempt login credentials of user.
+   * @returns user and authentication token information.
+   * @throws UnauthorizedException - "Unauthorized" - if user is not found.
+   * @throws ForbiddenException - "your account is suspended, contact admin" - if user account is blocked by admin.
+   */
   async validateUserByPassword(loginAttempt: LoginUserDto) {
     const userToAttempt = await this.findOneByEmailOrUsername(
       loginAttempt.emailOrUsername
@@ -338,7 +394,13 @@ export class UserService {
     }
   }
 
-  // two factor auth
+  /**
+   * sends one time password to user's email address for 2 factor authentication.
+   * @param email address of user.
+   * @returns message and expiration time for OTP.
+   * @throws UnauthorizedException - "Unauthorized" - if user is not found.
+   * @throws ForbiddenException - "email not verified" - if user email is not verified.
+   */
   async twoFactorOtp(email) {
     const user = await this.findOneByEmail(email);
     // check if the user exists or not
@@ -363,6 +425,13 @@ export class UserService {
     return await this.sendOtp(user, user.email, "two-factor-auth");
   }
 
+  /**
+   * used to verify the OTP sent to user's email address for 2 factor authentication.
+   * @param twoFactorOtpDto email address of user and OTP.
+   * @returns user and authentication token information.
+   * @throws UnauthorizedException - "Unauthorized" - if user is not found.
+   * @throws ForbiddenException - "No active otp found" - if 2FA OTP is not found.
+   */
   async twoFactorVerify(twoFactorOtpDto) {
     const { otp: attemptOtp, email } = twoFactorOtpDto;
     let user = await this.findOneByEmail(email);
@@ -415,7 +484,12 @@ export class UserService {
     );
   }
 
-  // validate user via token
+  /**
+   * valdates the given JWT payload and returns user object with new payload.
+   * @param payload JWT payload.
+   * @returns new JWT token and expiration time.
+   * @throws UnauthorizedException - "Unauthorized" - if user is not found for given payload.
+   */
   async validateUserByJwt(payload) {
     // fetching user via email
     const user = await this.findOneByEmail(payload.email);
@@ -434,7 +508,11 @@ export class UserService {
     }
   }
 
-  // create jwt token
+  /**
+   * creates JWT payload for given user.
+   * @param user user object.
+   * @returns created JWT token and expiration time.
+   */
   async createJwtpayload(user) {
     const data = {
       email: user.email,
@@ -447,7 +525,14 @@ export class UserService {
     };
   }
 
-  // check user email
+  /**
+   * send OTP on email for email verification.
+   * Method Handler for "twoFactorVerify" method of UserService in user.proto.
+   * @param email  email address of user.
+   * @param user user information of logged in user.
+   * @returns message response and OTP expiration time.
+   * @throws NotAcceptableException - "user with this email already exists" - if user with this email already exists.
+   */
   async sendEmailOtp(user, email) {
     if (user.email !== email) {
       const userAttempt = await this.userModel.findOne({ email });
@@ -464,7 +549,14 @@ export class UserService {
     return await this.sendOtp(user, email, "email-verification");
   }
 
-  // send otp
+  /**
+   * sends OTP on email for given task.
+   * @param user2 user object of email recipient.
+   * @param email email address for sending email to.
+   * @param forTask task for which OTP is sent.
+   * @returns expiration time for OTP and message response.
+   * @throws NotFoundException - "No active OTP found" - if no active OTP is found.
+   */
   async sendOtp(user2, email, forTask) {
     const user = await this.userModel.findOne({ _id: user2._id });
     // check if user exists or not
@@ -492,7 +584,16 @@ export class UserService {
       forTask,
     };
   }
-  // verify otp
+
+  /**
+   * verify the OTP sent on email for email verification.
+   * @param email  email address of user.
+   * @param user user information of logged in user.
+   * @param otp OTP to be verified.
+   * @returns user and authentication token information.
+   * @throws NotFoundException - "No active OTP found" - if no active OTP is found.
+   * @throws NotAcceptableException - "otp has expired" - if OTP is expired.
+   */
   async verifyEmailOtp(user, otp, email) {
     // fetching user via userId and checking for any active valid otp
     user = await this.userModel.findOne({ _id: user._id });
@@ -533,7 +634,12 @@ export class UserService {
     );
   }
 
-  // Forgot password otp
+  /**
+   * send OTP on email for password resetting.
+   * @param email  email address of user.
+   * @returns message response and OTP expiration time.
+   * @throws NotFoundException - "User Not Found" - if user is not found.
+   */
   async forgotPasswordOtp(email: string) {
     const user = await this.findOneByEmail(email);
     if (!user) {
@@ -548,7 +654,15 @@ export class UserService {
     return await this.sendOtp(user, email, "forget-password");
   }
 
-  // forgot password
+  /**
+   * it is used to verify the OTP for forget password and reset the user's password.
+   * @param forgotPasswordDto  email, OTP and the new password.
+   * @returns message response.
+   * @throws error received from user service in HTTP format.
+   * @throws NotFoundException - "User Not Found" - if user is not found.
+   * @throws NotFoundException - "No active otp found" - if forget-password OTP is not found.
+   * @throws NotAcceptableException - "otp has expired" - if OTP is expired.
+   */
   async forgotPasswordVerify(forgotPasswordDto) {
     const { otp: attemptOtp, email, password: newPassword } = forgotPasswordDto;
     const user = await this.findOneByEmail(email);
@@ -597,7 +711,12 @@ export class UserService {
     );
   }
 
-  // reset pssword
+  /**
+   * it is used to reset password using current password.
+   * @param resetPasswordDto  current, new password and user information of logged in user.
+   * @returns message response.
+   * @throws UnauthorizedException - "Incorrect Password" - if current password is not correct.
+   */
   async resetPassword(user, resetPasswordDto) {
     user = await this.findOneByEmail(user.email);
     const { newPassword, currentPassword } = resetPasswordDto;
@@ -630,7 +749,13 @@ export class UserService {
     };
   }
 
-  // function to update profile
+  /**
+   * Method Handler for "updateProfile" method of UserService in user.proto.
+   * updates user profile information.
+   * @param updateProfileDto user details to be updated.
+   * @returns message response.
+   * @throws ForbiddenException - "forbidden" - if user role is admin.
+   */
   async updateProfile(user, updateProfileDto) {
     if (updateProfileDto.newPassword && updateProfileDto.currentPassword) {
       //check to resetpassword and also checking that user should not be admin
@@ -678,7 +803,12 @@ export class UserService {
     }
   }
 
-  // check email
+  /**
+   * used to check if the email address is unique.
+   * @param checkEmailDto user id and new email to be updated.
+   * @returns message response.
+   * @throws NotAcceptableException - "unavailable" - if email is not available.
+   */
   async checkEmail({ newEmail, userId }) {
     let user = null;
     try {
@@ -717,7 +847,13 @@ export class UserService {
     };
   }
 
-  // check username
+  /**
+   * Method Handler for "checkUsername" method of UserService in user.proto.
+   * used to check if the username is unique .
+   * @param checkUsernameDto username to be checked.
+   * @returns message response.
+   * @throws NotAcceptableException - "unavailable" - if username is not available.
+   */
   async checkUsername({ username }) {
     const user = await this.userModel.findOne({ username });
     if (user) {
@@ -734,7 +870,12 @@ export class UserService {
     };
   }
 
-  // function to upload picture
+  /**
+   * Method Handler for "uploadProfilePicture" method of UserService in user.proto.
+   * It stores the profile picture URL for a user.
+   * @param profilePicDto  URL of the profile picture and user information of logged in user.
+   * @returns message response.
+   */
   async uploadProfilePicture(user, profilePicDto) {
     user = await this.findOneByEmail(user.email);
 
@@ -746,7 +887,13 @@ export class UserService {
     };
   }
 
-  // List users
+  /**
+   * used to fetch a list of users.
+   * It calls getUsersByFilters on user microservice.
+   * @param listUsersDto filter options for users.
+   * @returns array of users and count of users.
+   * @throws NotFoundException - "users not found" - if no users are found.
+   */
   async listUsers(listUsersDto) {
     const matches: any = {};
 
@@ -891,8 +1038,13 @@ export class UserService {
       }
     } catch (error) {}
   }
-
-  // function to create Kyc
+  /**
+   * Method Handler for "kycCreateApplicant" method of UserService in user.proto.
+   * it is used for for creating kyc applicant on Onfido.
+   * @param kycApplicantDto information of user.
+   * @returns user object with kyc application id.
+   * @throws NotAcceptableException - "kyc account already exists" - if kyc applicant is already created.
+   */
   async kycCreateApplicant(kycApplicantDto) {
     const userId = kycApplicantDto.userId;
     const user = await this.findOneById(userId);
@@ -926,7 +1078,12 @@ export class UserService {
     }
   }
 
-  // function to fetch kyc by id and update
+  /**
+   * Method Handler for "findByKycIdAndUpdate" method of UserService in user.proto.
+   * finds the user with given kycApplicantId and updates it.
+   * @param attempt kycApplicantId of user.
+   * @returns the updated user with given kycApplicantId.
+   */
   async findByKycIdAndUpdate({
     kyc_applicant_id,
     kyc_status,
@@ -943,14 +1100,22 @@ export class UserService {
     };
   }
 
-  // health function
+  /**
+   * checks if the user service is running properly.
+   * @returns response message - "User service is up and running!"
+   */
   async healthCheck(healthCheckDto) {
     return {
       message: "User service up and running!",
     };
   }
 
-  // function to update balance
+  /**
+   * updates the user balance.
+   * @param balanceUpdateDto new balance to be updated and user information.
+   * @returns response message
+   * @throws NotFoundException - "user not found" - if user is not found.
+   */
   async balanceUpdate(balanceUpdateDto) {
     try {
       // fetching user via userid
@@ -1017,7 +1182,12 @@ export class UserService {
     return { balance: user.balance };
   }
 
-  // function to filter user
+  /**
+   * used to fetch a list of users.
+   * @param getUsersDto filter options for users.
+   * @returns array of users and count of users.
+   * @throws NotFoundException - "no users found" - if no user is found.
+   */
   async getUsersByFilters(getUsersDto) {
     const matches: any = {};
     const orQuery = [];
@@ -1106,7 +1276,12 @@ export class UserService {
     return { totalUsers, users: users };
   }
 
-  // function to get user by id
+  /**
+   * used to fetch a user by id.
+   * @param getUserByIdDto user id.
+   * @returns user object.
+   * @throws NotFoundException - "user not found" - if user not found.
+   */
   async getUserById(getUserByIdDto) {
     let getUser = null;
     try {
@@ -1135,7 +1310,12 @@ export class UserService {
     return (getUser = await this.helperService.serializeUser(getUser));
   }
 
-  // function to update withheld balance
+  /**
+   * it updates the user withheld balance for given user.
+   * @param updateWithheldBalanceDto new balance and user information.
+   * @returns message response.
+   * @throws NotAcceptable - "not enough amount in your wallet" - if there is insufficient amount.
+   */
   async updateWithheldBalance(updateWithheldBalanceDto) {
     const { balance } = await this.getBalance({
       userId: updateWithheldBalanceDto.userId,

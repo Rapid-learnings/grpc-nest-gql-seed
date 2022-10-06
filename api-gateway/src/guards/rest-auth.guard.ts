@@ -3,27 +3,27 @@ import {
   CanActivate,
   ExecutionContext,
   HttpStatus,
-  HttpException,
   applyDecorators,
   UseGuards,
   Logger,
   Inject,
   createParamDecorator,
 } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import * as jwt from 'jsonwebtoken';
 import { google, Auth as Auth2 } from 'googleapis';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import * as appleSignin from 'apple-signin-auth';
 import { User2Service } from 'src/user/userHelper.service';
 import { ResponseHandlerService } from 'src/helper/response-handler.service';
-import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
 import { Role } from './role.enum';
 import { SetMetadata } from '@nestjs/common';
 
 export const ROLES_KEY = 'roles';
 
+/**
+ * Authentication Guard for validating incoming requests for protected REST APIs to logged in user only.
+ */
 @Injectable()
 export class RestAuthGuard implements CanActivate {
   oauthClient: Auth2.OAuth2Client;
@@ -38,6 +38,11 @@ export class RestAuthGuard implements CanActivate {
     this.oauthClient = new google.auth.OAuth2(clientID, clientSecret);
   }
 
+  /**
+   * It checks whether the user is logged in or not and incoming request should be allowed further or not.
+   * @param context
+   * @returns true is user is logged in otherwise false.
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const requiredRoles = this.reflector.get<Role[]>(
@@ -57,6 +62,11 @@ export class RestAuthGuard implements CanActivate {
     return false;
   }
 
+  /**
+   * validates the JWt authentication token
+   * @param auth Authentication Header
+   * @returns logged in user.
+   */
   async validateToken(auth: string) {
     if (auth.split(' ')[0] !== 'Bearer') {
       await this.responseHandlerService.response(
@@ -134,6 +144,9 @@ export function Auth(...roles: Role[]) {
   return applyDecorators(UseGuards(RestAuthGuard));
 }
 
+/**
+ * Decorator to retrieve user from request object.
+ */
 export const GetUserId = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const req = context.switchToHttp().getRequest();
@@ -141,6 +154,9 @@ export const GetUserId = createParamDecorator(
   },
 );
 
+/**
+ * Decorator to apply Role permission restrictions over APIs to be protected.
+ */
 export const Roles = (...roles: Role[]) => {
   return SetMetadata(ROLES_KEY, roles);
 };

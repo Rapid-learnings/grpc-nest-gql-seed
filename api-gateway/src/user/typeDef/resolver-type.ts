@@ -3,17 +3,12 @@ import {
   IsString,
   IsNotEmpty,
   MinLength,
-  MaxLength,
-  IsNumberString,
   Matches,
   IsBoolean,
   IsOptional,
-  IsInt,
-  IsEmpty,
-  isEmail,
 } from 'class-validator';
 
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Users {

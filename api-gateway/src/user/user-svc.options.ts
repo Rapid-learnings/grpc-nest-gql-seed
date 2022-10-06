@@ -1,6 +1,10 @@
 import { join } from 'path';
 import { ClientOptions, Transport } from '@nestjs/microservices';
 
+/**
+ * configuration options for gRPC client for user microservice.
+ * @category User
+ */
 export const UserServiceClientOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {
